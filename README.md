@@ -7,7 +7,10 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30.0+-red.svg)](https://streamlit.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+
 基于 AI 的 Telegram 自动回复机器人，支持私聊/群聊、上下文记忆、热更新配置、消息群发和 Web 管理后台。
+
+仓库地址： https://github.com/hverlott/AI----agent
 
 [快速开始](#-快速开始) | [功能特性](#-功能特性) | [安装指南](#-安装指南) | [使用文档](#-使用文档)
 
@@ -96,7 +99,7 @@
 #### Windows
 ```cmd
 # 1. 下载项目
-git clone <项目地址>
+git clone https://github.com/hverlott/AI----agent.git
 cd AI-Talk
 
 # 2. 运行安装脚本
@@ -112,7 +115,7 @@ start_admin.bat
 #### Linux/Mac
 ```bash
 # 1. 下载项目
-git clone <项目地址>
+git clone https://github.com/hverlott/AI----agent.git
 cd AI-Talk
 
 # 2. 运行安装脚本
@@ -165,11 +168,18 @@ pip --version     # 应显示 pip 版本
 
 ```bash
 # 如果有 Git
-git clone <项目地址>
+git clone https://github.com/hverlott/AI----agent.git
 cd AI-Talk
 
 # 或者手动下载 ZIP 并解压
 ```
+
+## 🔒 安全与隐私
+
+- 本仓库已经从历史中移除并忽略了本地配置、会话文件、日志、数据库和压缩包等敏感或大型文件（例如 `.env`、`*.session`、`data/tenants/`、`release/`、`*.zip`、`*.exe`）。
+- 发布时请确保不要把你的私人 API 密钥、会话文件或租户数据提交到仓库。请在本地复制并填写 `.env`（参见 `.env.example`）。
+
+如需将私有配置共享，请使用安全的 secrets 管理或私有仓库，并在提交前检查 `git status` 与 `.gitignore`。
 
 ### 步骤 3：安装依赖
 
