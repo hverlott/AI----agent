@@ -16,7 +16,15 @@ def main(output_path):
     W, H = 2000, 1200
     img = Image.new('RGB', (W, H), (246, 243, 236))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.load_default()
+    # 优先尝试加载中文字体
+    try:
+        font = ImageFont.truetype("C:/Windows/Fonts/msyh.ttc", 20)
+    except OSError:
+        try:
+            font = ImageFont.truetype("C:/Windows/Fonts/simhei.ttf", 20)
+        except OSError:
+            print("Warning: Chinese font not found, using default.")
+            font = ImageFont.load_default()
 
     participants = [
         ("用户", 100),
