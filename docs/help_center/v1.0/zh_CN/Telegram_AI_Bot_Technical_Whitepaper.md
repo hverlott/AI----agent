@@ -49,6 +49,10 @@ graph TD
     ReplySender --> |API| User
 ```
 
+### 2.2 系统功能全景图
+
+![Telegram 系统功能全景图](../../../images/11-Telegram系统功能全景.png)
+
 ---
 
 ## 3. 关键逻辑流程 (Key Logic Flows)
