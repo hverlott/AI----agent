@@ -1,0 +1,378 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+多平台社交媒体 AI Bot - 统一管理后台
+支持 Telegram, WhatsApp, Facebook, Messenger, 微信等
+"""
+
+import streamlit as st
+import os
+import sys
+import json
+import re
+from datetime import datetime
+from admin import render_login_panel
+import asyncio
+
+# 页面配置
+st.set_page_config(
+    page_title="👑鼎盛👑内部工具",
+    page_icon="👑",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# CSS 样式（优化紧凑版）
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 2.5rem;
+        font-weight: bold;
+        text-align: center;
+        background: linear-gradient(120deg, #1f77b4, #ff7f0e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+    }
+    .platform-card {
+        padding: 1rem;
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        margin: 0.3rem 0;
+        transition: all 0.3s;
+    }
+    .platform-card:hover {
+        border-color: #1f77b4;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .platform-active {
+        border-color: #1f77b4 !important;
+        background-color: #f0f8ff;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .status-running {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-stopped {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    /* 紧凑侧边栏样式 */
+    [data-testid="stSidebar"] {
+        padding-top: 2rem;
+    }
+    [data-testid="stSidebar"] .element-container {
+        margin-bottom: 0.3rem;
+    }
+    [data-testid="stSidebar"] button {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    [data-testid="stSidebar"] small {
+        font-size: 0.85rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# 平台配置
+PLATFORMS = {
+    'telegram': {
+        'name': 'Telegram',
+        'icon': '📱',
+        'color': '#0088cc',
+        'status': 'available',  # available, unavailable, coming_soon
+        'description': '全功能支持 - 私聊/群聊/频道'
+    },
+    'whatsapp': {
+        'name': 'WhatsApp',
+        'icon': '💬',
+        'color': '#25D366',
+        'status': 'available',
+        'description': '✅ 可用 - 私聊/群聊自动回复'
+    },
+    'facebook': {
+        'name': 'Facebook',
+        'icon': '📘',
+        'color': '#1877f2',
+        'status': 'coming_soon',
+        'description': '规划中 - Messenger + 主页'
+    },
+    'messenger': {
+        'name': 'Messenger',
+        'icon': '💙',
+        'color': '#006aff',
+        'status': 'coming_soon',
+        'description': '规划中 - 独立客户端'
+    },
+    'wechat': {
+        'name': '微信 WeChat',
+        'icon': '💚',
+        'color': '#07c160',
+        'status': 'coming_soon',
+        'description': '规划中 - 个人号/公众号'
+    },
+    'instagram': {
+        'name': 'Instagram',
+        'icon': '📷',
+        'color': '#E4405F',
+        'status': 'coming_soon',
+        'description': '规划中 - DM 自动回复'
+    },
+    'twitter': {
+        'name': 'Twitter/X',
+        'icon': '🐦',
+        'color': '#1DA1F2',
+        'status': 'coming_soon',
+        'description': '规划中 - DM + 提及回复'
+    },
+    'discord': {
+        'name': 'Discord',
+        'icon': '💜',
+        'color': '#5865F2',
+        'status': 'coming_soon',
+        'description': '规划中 - 服务器 Bot'
+    }
+}
+
+TG_GROUP_CACHE_FILE = "platforms/telegram/group_cache.json"
+TG_SELECTED_GROUPS_FILE = "platforms/telegram/selected_groups.json"
+
+def load_platform_config(platform):
+    """加载平台配置"""
+    config_file = f"platforms/{platform}/config.json"
+    try:
+        if os.path.exists(config_file):
+            with open(config_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_platform_config(platform, config):
+    """保存平台配置"""
+    config_file = f"platforms/{platform}/config.json"
+    os.makedirs(os.path.dirname(config_file), exist_ok=True)
+    with open(config_file, 'w', encoding='utf-8') as f:
+        json.dump(config, f, indent=2, ensure_ascii=False)
+
+
+def load_tg_group_cache():
+    try:
+        with open(TG_GROUP_CACHE_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, dict):
+                return data
+    except:
+        pass
+    return {}
+
+
+def load_tg_selected_groups():
+    try:
+        with open(TG_SELECTED_GROUPS_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('selected_ids', [])
+    except:
+        return []
+
+
+def save_tg_selected_groups(selected_ids):
+    os.makedirs(os.path.dirname(TG_SELECTED_GROUPS_FILE), exist_ok=True)
+    with open(TG_SELECTED_GROUPS_FILE, 'w', encoding='utf-8') as f:
+        json.dump({'selected_ids': selected_ids}, f, ensure_ascii=False, indent=2)
+
+
+def parse_group_ids(raw_text):
+    if not raw_text:
+        return []
+    entries = re.split(r'[,\s]+', raw_text.strip())
+    ids = []
+    for token in entries:
+        if not token:
+            continue
+        try:
+            ids.append(int(token))
+        except:
+            continue
+    return ids
+
+def render_platform_selector():
+    """渲染平台选择器（优化紧凑版）"""
+    st.sidebar.markdown("### 🌐 平台")
+    
+    selected_platform = st.session_state.get('selected_platform', 'telegram')
+    
+    for platform_id, platform_info in PLATFORMS.items():
+        # 创建紧凑的平台选项
+        col1, col2, col3 = st.sidebar.columns([1, 3, 1])
+        
+        with col1:
+            st.markdown(f"<div style='font-size: 1.5rem;'>{platform_info['icon']}</div>", 
+                      unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"<small>**{platform_info['name']}**</small>", 
+                      unsafe_allow_html=True)
+        
+        with col3:
+            # 状态标识（简化版）
+            if platform_info['status'] == 'available':
+                st.markdown("🟢", unsafe_allow_html=True)
+            elif platform_info['status'] == 'coming_soon':
+                st.markdown("🟡", unsafe_allow_html=True)
+            else:
+                st.markdown("🔴", unsafe_allow_html=True)
+        
+        # 选择按钮（紧凑版）
+        button_label = "✓" if selected_platform == platform_id else "选择"
+        if st.sidebar.button(
+            button_label,
+            key=f"select_{platform_id}",
+            disabled=(platform_info['status'] != 'available'),
+            use_container_width=True,
+            type="primary" if selected_platform == platform_id else "secondary"
+        ):
+            st.session_state.selected_platform = platform_id
+            st.rerun()
+    
+    return selected_platform
+
+def render_telegram_panel():
+    """渲染 Telegram 控制面板"""
+    from admin import (
+        get_bot_status, start_bot, stop_bot, 
+        read_file, write_file, read_logs
+    )
+    
+    st.header("📱 Telegram AI Bot 控制面板")
+    
+    # 状态显示
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        is_running, pid = get_bot_status()
+        if is_running:
+            st.success(f"🟢 运行中 (PID: {pid})")
+        else:
+            st.error("🔴 已停止")
+    
+    with col2:
+        if os.path.exists("userbot_session.session"):
+            st.success("✅ 已登录")
+        else:
+            st.warning("⚠️ 未登录")
+            if st.button("\u672a\u767b\u5f55 Telegram (\u70b9\u51fb\u767b\u5f55)"):
+                st.session_state.show_login_panel = True
+    
+    with col3:
+        if os.path.exists(".env"):
+            st.success("✅ 已配置")
+        else:
+            st.error("❌ 未配置")
+    
+    st.divider()
+    with st.expander("Telegram \u767b\u5f55", expanded=st.session_state.get('show_login_panel', False)):
+        render_login_panel()
+    
+    # 控制按钮
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("🚀 启动机器人", use_container_width=True, type="primary", 
+                    disabled=is_running):
+            success, message = start_bot()
+            if success:
+                st.success(message)
+                st.rerun()
+            else:
+                st.error(message)
+    
+    with col2:
+        if st.button("⛔ 停止机器人", use_container_width=True, 
+                    disabled=not is_running):
+            success, message = stop_bot()
+            if success:
+                st.success(message)
+                st.rerun()
+            else:
+                st.error(message)
+    
+    with col3:
+        if st.button("🔄 重启机器人", use_container_width=True,
+                    disabled=not is_running):
+            stop_bot()
+            import time
+            time.sleep(1)
+            start_bot()
+            st.success("机器人已重启")
+            st.rerun()
+    
+    st.divider()
+    
+    # Tab 界面
+    tabs = ["🧠 配置", "📢 群发", "📜 日志", "📊 统计"]
+    tab_choice = st.radio("功能", tabs, horizontal=True, key='tg_panel_tab')
+    if tab_choice == tabs[0]:
+        render_telegram_config()
+    elif tab_choice == tabs[1]:
+        render_telegram_broadcast()
+    elif tab_choice == tabs[2]:
+        render_telegram_logs()
+    else:
+        render_telegram_stats()
+
+def render_telegram_config():
+    """Telegram 配置界面"""
+    from admin import read_file, write_file
+    
+    st.subheader("⚙️ 配置管理")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("**AI 人设**")
+        prompt = st.text_area(
+            "编辑提示词",
+            value=read_file("prompt.txt"),
+            height=200,
+            key="tg_prompt"
+        )
+        if st.button("💾 保存人设", key="save_prompt"):
+            write_file("prompt.txt", prompt)
+            st.success("✅ 已保存")
+    
+    with col2:
+        st.markdown("**触发关键词**")
+        keywords = st.text_area(
+            "每行一个",
+            value=read_file("keywords.txt", "帮我\n求助\nAI"),
+            height=200,
+            key="tg_keywords",
+        )
+        if st.button("💾 保存关键词", key="save_keywords"):
+            write_file("keywords.txt", keywords)
+            st.success("✅ 已保存")
+
+    st.subheader("QA配置")
+    qa_content = read_file("platforms/telegram/qa.txt", "# Q&A format: question||answer\n# Example: price||Our price is ...\n")
+    qa_text = st.text_area("QA问题库（支持 Q:/A: 或 question||answer）", value=qa_content, height=220, key="tg_qa")
+    if st.button("💾 保存QA", use_container_width=True, key="save_qa"):
+        success, message = write_file("platforms/telegram/qa.txt", qa_text)
+        if success:
+            st.success("✅ 已保存QA")
+        else:
+            st.error("❌ 保存失败")
+    st.divider()
+    

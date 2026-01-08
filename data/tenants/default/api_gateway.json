@@ -1,0 +1,18 @@
+{
+  "routes": [
+    {
+      "route": "/audit",
+      "method": "POST",
+      "auth": "Token",
+      "rate_limit": 120,
+      "updated_at": "2026-01-06T18:20:00"
+    },
+    {
+      "route": "/reply",
+      "method": "POST",
+      "auth": "None",
+      "rate_limit": 300,
+      "updated_at": "2026-01-06T18:20:00"
+    }
+  ]
+}
