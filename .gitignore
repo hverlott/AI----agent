@@ -36,3 +36,21 @@ Thumbs.db
 
 # Backups
 backups/
+
+# Sensitive tenant data and caches
+data/tenants/
+data/cache/
+data/backups/
+
+# Compressed packages and release artifacts
+*.zip
+release/
+
+# Session, pid and database files
+*.session
+*.pid
+*.db
+
+# Keys and secrets
+*.key
+
