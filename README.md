@@ -539,8 +539,8 @@ graph TD
 
 ## 📞 联系方式
 
-- 项目地址: <项目链接>
-- 问题反馈: <Issues 链接>
+- 项目地址: <[项目链接](https://github.com/hverlott/AI----agent)>
+- 问题反馈: <#>
 - 使用文档: 查看 `docs/` 目录
 
 ---
@@ -549,7 +549,7 @@ graph TD
 
 **⭐ 如果这个项目对你有帮助，请给个 Star！⭐**
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by [High]
 
 </div>
 
