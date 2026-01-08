@@ -4,7 +4,7 @@
 - 确认 Python 依赖满足 requirements.txt
 - 可选安装解析依赖：PyPDF2、python-docx、openpyxl
 - 启动管理后台：start_multi_admin.bat 或 `python -m streamlit run admin_multi.py`
-- 在“📚 知识库”面板创建/导入条目
+- 在“📚 数据管理 > 知识库”面板创建/导入条目
 
 ## 数据存储
 - 路径：data/knowledge_base/db.json 与 data/knowledge_base/files/
@@ -17,4 +17,3 @@
 ## 影响分析
 - 新增模块为独立面板，不影响 Telegram/WhatsApp 现有功能
 - main.py 仅在 QA 未命中时读取知识库上下文，兼容性良好
-

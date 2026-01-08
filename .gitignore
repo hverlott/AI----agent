@@ -54,3 +54,9 @@ release/
 # Keys and secrets
 *.key
 
+# User Uploaded Files
+data/knowledge_base/files/
+platforms/telegram/*副本.txt
+platforms/telegram/extra_kb.txt
+
+

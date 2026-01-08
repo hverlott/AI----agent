@@ -365,6 +365,9 @@ I18N = {
         "tg_cfg_audit_servers": "远程审核服务器地址 (多个用逗号分隔)",
         "tg_cfg_save_all": "💾 保存配置",
         "tg_cfg_audit_kw": "**🔒 审核员关键词配置（双机拦截）**",
+        "tg_cfg_conv_mode": "对话呈现模式",
+        "tg_cfg_conv_ai": "官方客服 / 技术支持",
+        "tg_cfg_conv_human": "模拟真人沟通",
         "tg_kw_block": "违禁词",
         "tg_kw_sensitive": "敏感词",
         "tg_kw_allow": "允许词（品牌设定白名单）",
@@ -820,6 +823,9 @@ I18N = {
         "tg_cfg_audit_servers": "Remote Audit Servers (comma separated)",
         "tg_cfg_save_all": "Save Config",
         "tg_cfg_audit_kw": "Auditor Keywords Config",
+        "tg_cfg_conv_mode": "Conversation Mode",
+        "tg_cfg_conv_ai": "AI Visible (Official Support)",
+        "tg_cfg_conv_human": "Human Simulated",
         "tg_kw_block": "Blocklist",
         "tg_kw_sensitive": "Sensitive",
         "tg_kw_allow": "Allowlist",
@@ -1814,8 +1820,10 @@ def extract_content_from_upload(upload, filename):
             reader = PyPDF2.PdfReader(upload)
             pages = []
             for i in range(len(reader.pages)):
-                pages.append(reader.pages[i].extract_text() or "")
-            content = "\n".join(pages).strip()
+                text = reader.pages[i].extract_text()
+                if text:
+                    pages.append(f"# PDF Page {i+1}\n{text}")
+            content = "\n\n".join(pages).strip()
             parse_note = "parsed:pdf"
         except Exception as e:
             parse_note = f"unparsed:pdf:{e}"
@@ -2068,10 +2076,8 @@ def render_kb_panel():
                 
                 try:
                     from main import retrieve_kb_context
-                    # retrieve_kb_context expects list of dicts. Our items ARE list of dicts.
                     ranked = retrieve_kb_context(query, items, topn=int(topn))
-                except ImportError:
-                    # Fallback if main not found or diff structure
+                except Exception:
                     ranked = [it for it in items if query.lower() in (it.get('title','') + it.get('content','')).lower()]
                     ranked = ranked[:int(topn)]
 
@@ -2262,6 +2268,29 @@ def render_telegram_config():
     if st.button(tr("tg_cfg_save_qa"), key="save_tg_qa"):
         success, message = write_file(qa_path, qa_text)
         if success:
+            # 自动触发知识库刷新
+            try:
+                cfg_path = os.path.join("platforms", "telegram", "config.txt")
+                if os.path.exists(cfg_path):
+                    lines = []
+                    kb_refresh_found = False
+                    with open(cfg_path, "r", encoding="utf-8") as f: 
+                        for line in f:
+                            if line.strip().startswith("KB_REFRESH="):
+                                lines.append("KB_REFRESH=on\n")
+                                kb_refresh_found = True
+                            else:
+                                lines.append(line)
+                    
+                    if not kb_refresh_found:
+                        lines.append("KB_REFRESH=on\n")
+
+                    with open(cfg_path, "w", encoding="utf-8") as f:
+                        f.writelines(lines)
+                    st.info("✅ 已设置自动刷新标志，机器人将在下一次交互时重建知识库")
+            except Exception as e:
+                st.warning(f"无法设置自动刷新: {e}")
+
             log_admin_op("tg_qa_save", {"path": qa_path})
             st.success(tr("common_success"))
         else:
@@ -2277,6 +2306,7 @@ def render_telegram_config():
         'PRIVATE_REPLY': True, 
         'GROUP_REPLY': True, 
         'CONV_ORCHESTRATION': False,
+        'CONVERSATION_MODE': 'ai_visible',
         'AI_TEMPERATURE': 0.7,
         'AUDIT_ENABLED': True,
         'AUDIT_MAX_RETRIES': 3,
@@ -2285,14 +2315,19 @@ def render_telegram_config():
         'AUDIT_SERVERS': 'http://127.0.0.1:8000',
         'AUTO_QUOTE': False,
         'QUOTE_INTERVAL_SECONDS': 30.0,
-        'QUOTE_MAX_LEN': 200
+        'QUOTE_MAX_LEN': 200,
+        'KB_ONLY_REPLY': False,
+        'HANDOFF_KEYWORDS': '',
+        'HANDOFF_MESSAGE': '',
+        'KB_FALLBACK_MESSAGE': ''
     }
     for line in config_content.split('\n'):
         if '=' in line and not line.strip().startswith('#'):
             key, value = line.split('=', 1)
             key = key.strip()
             value = value.strip().lower()
-            if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION']:
+            raw_value = line.split('=', 1)[1].strip()
+            if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION', 'KB_ONLY_REPLY']:
                 current_config[key] = (value == 'on')
             elif key == 'AI_TEMPERATURE':
                 try:
@@ -2312,7 +2347,9 @@ def render_telegram_config():
             elif key == 'AUDIT_MODE':
                 current_config[key] = value
             elif key == 'AUDIT_SERVERS':
-                current_config[key] = line.split('=', 1)[1].strip()
+                current_config[key] = raw_value
+            elif key == 'CONVERSATION_MODE':
+                current_config[key] = value
             elif key == 'QUOTE_INTERVAL_SECONDS':
                 try:
                     current_config[key] = float(value)
@@ -2323,6 +2360,12 @@ def render_telegram_config():
                     current_config[key] = int(value)
                 except ValueError:
                     pass
+            elif key == 'HANDOFF_KEYWORDS':
+                current_config[key] = raw_value
+            elif key == 'HANDOFF_MESSAGE':
+                current_config[key] = raw_value
+            elif key == 'KB_FALLBACK_MESSAGE':
+                current_config[key] = raw_value
     
     col1, col2 = st.columns(2)
     
@@ -2340,6 +2383,13 @@ def render_telegram_config():
             help="启用后，系统将按照 Stage/Persona/KB 流程进行复杂对话编排 (Supervisor -> Stage Agent)",
             key="tg_orchestration"
         )
+        
+        kb_only_reply = st.toggle(
+            "📚 知识库直答（不走剧本）",
+            value=current_config['KB_ONLY_REPLY'],
+            help="开启后，回复将直接引用知识库内容，不调用AI与人设剧本",
+            key="tg_kb_only_reply"
+        )
     
     with col2:
         group_reply = st.toggle(
@@ -2347,6 +2397,26 @@ def render_telegram_config():
             value=current_config['GROUP_REPLY'],
             key="tg_group"
         )
+        st.markdown(tr("tg_cfg_conv_mode"))
+        conv_options = [tr("tg_cfg_conv_ai"), tr("tg_cfg_conv_human")]
+        mode_idx = 0 if current_config.get('CONVERSATION_MODE','ai_visible') == 'ai_visible' else 1
+        conv_choice = st.radio(
+            tr("tg_cfg_conv_mode"),
+            conv_options,
+            index=mode_idx,
+            horizontal=True,
+            key="tg_conv_mode"
+        )
+        conv_value = 'ai_visible' if conv_choice == tr("tg_cfg_conv_ai") else 'human_simulated'
+    
+    st.divider()
+    st.markdown("🛠️ 兜底与人工配置")
+    hk_col1, hk_col2 = st.columns([1,1])
+    with hk_col1:
+        handoff_keywords = st.text_input("人工触发关键词（逗号分隔）", value=current_config.get('HANDOFF_KEYWORDS',''), key="tg_handoff_keywords")
+    with hk_col2:
+        handoff_message = st.text_input("人工兜底话术（单行）", value=current_config.get('HANDOFF_MESSAGE',''), key="tg_handoff_message")
+    kb_fallback_message = st.text_input("KB_ONLY兜底话术（单行）", value=current_config.get('KB_FALLBACK_MESSAGE',''), key="tg_kb_fallback_message")
     
     st.divider()
     st.markdown(tr("tg_cfg_quote"))
@@ -2478,6 +2548,21 @@ GROUP_REPLY={'on' if group_reply else 'off'}
 # AI 会话编排引擎 (SOP/Persona/KB)
 CONV_ORCHESTRATION={'on' if orchestration_enabled else 'off'}
 
+# 知识库直答（不走剧本）
+KB_ONLY_REPLY={'on' if kb_only_reply else 'off'}
+
+# 对话呈现模式
+CONVERSATION_MODE={conv_value}
+
+# 人工触发关键词（逗号分隔）
+HANDOFF_KEYWORDS={handoff_keywords}
+
+# 人工兜底话术（单行）
+HANDOFF_MESSAGE={handoff_message}
+
+# KB_ONLY兜底话术（单行）
+KB_FALLBACK_MESSAGE={kb_fallback_message}
+
 # AI 温度 (0.0-1.0)
 AI_TEMPERATURE={ai_temperature:.1f}
 
@@ -2608,10 +2693,9 @@ AUDIT_GUIDE_STRENGTH={guide_strength:.1f}
 
     st.markdown(tr("tg_kw_fallback"))
     fallback_path = os.path.join("platforms", "telegram", "audit_fallback.txt")
-    fallback_default = "您的问题已升级至特级顾问处理（前白宫总统顾问团成员）\n正在为您连接专属服务通道，请稍候\n系统正在为您分配VIP服务专员"
     fallback_text = st.text_area(
         tr("tg_kw_fallback"),
-        value=read_file(fallback_path, fallback_default),
+        value=read_file(fallback_path, ""),
         height=160,
         key="tg_audit_fallback"
     )
@@ -4999,9 +5083,10 @@ def render_help_center():
                 <!DOCTYPE html>
                 <html>
                 <head>
+                <meta charset="utf-8">
                 <style>
                 body {{ margin: 0; background: white; }}
-                .mermaid {{ padding: 10px; border-radius: 5px; }}
+                .mermaid {{ padding: 10px; border-radius: 5px; overflow: auto; }}
                 </style>
                 </head>
                 <body>
@@ -5017,7 +5102,7 @@ def render_help_center():
                 """
                 b64 = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
                 st.markdown(
-                    f'<iframe src="data:text/html;base64,{b64}" width="100%" height="400" frameborder="0" style="background: white; border-radius: 5px;"></iframe>', 
+                    f'<iframe src="data:text/html;base64,{b64}" width="100%" height="600" frameborder="0" style="background: white; border-radius: 5px;"></iframe>', 
                     unsafe_allow_html=True
                 )
                 

@@ -166,6 +166,12 @@ class DatabaseManager:
             
             if 'stage' not in columns:
                 cursor.execute("ALTER TABLE message_events ADD COLUMN stage TEXT")
+            
+            if 'user_content' not in columns:
+                cursor.execute("ALTER TABLE message_events ADD COLUMN user_content TEXT")
+                
+            if 'bot_response' not in columns:
+                cursor.execute("ALTER TABLE message_events ADD COLUMN bot_response TEXT")
 
             # 检查 conversation_states 表是否缺少 risk_level, slots_json, handoff_required
             cursor.execute("PRAGMA table_info(conversation_states)")
@@ -229,10 +235,10 @@ class DatabaseManager:
         
         return self.execute_query(query, tuple(params))
 
-    def record_message_event(self, tenant_id: str, platform: str, chat_id: str, direction: str, status: str, tokens_used: int = 0, model: str = None, cost: float = 0.0, stage: str = None):
+    def record_message_event(self, tenant_id: str, platform: str, chat_id: str, direction: str, status: str, tokens_used: int = 0, model: str = None, cost: float = 0.0, stage: str = None, user_content: str = None, bot_response: str = None):
         self.execute_update(
-            "INSERT INTO message_events (tenant_id, platform, chat_id, direction, status, tokens_used, model, cost, stage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (tenant_id, platform, chat_id, direction, status, tokens_used, model, cost, stage)
+            "INSERT INTO message_events (tenant_id, platform, chat_id, direction, status, tokens_used, model, cost, stage, user_content, bot_response) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (tenant_id, platform, chat_id, direction, status, tokens_used, model, cost, stage, user_content, bot_response)
         )
 
     def get_tenant_config(self, tenant_id: str) -> Dict:

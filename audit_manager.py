@@ -28,7 +28,7 @@ class FallbackCache:
     def __init__(self, path):
         self.path = path
         self._mtime = None
-        self._messages = ["系统繁忙，请稍后再试"]
+        self._messages = []
         self._load()
     def _load(self):
         try:
@@ -47,7 +47,9 @@ class FallbackCache:
             pass
     def get_message(self):
         self._load()
-        return random.choice(self._messages)
+        if self._messages:
+            return random.choice(self._messages)
+        return ""
 
 class RemoteAuditor:
     def __init__(self, server_urls):
@@ -209,12 +211,12 @@ class AuditManager:
                 }}
             except Exception as e:
                 logger.error(f"Generation failed: {e}")
-                # When audit is disabled, we should expose system errors rather than masking them with fallback
-                return {"content": f"⚠️ System Error: {str(e)}", "usage": total_usage, "status": {
+                fb_action, fb_msg = self._build_fallback("error")
+                return {"content": fb_msg, "usage": total_usage, "status": {
                     "style_guard_applied": False,
                     "audit_primary_passed": False,
                     "audit_secondary_passed": False,
-                    "final_action": "error"
+                    "final_action": fb_action
                 }}
 
         current_messages = messages.copy()
@@ -254,6 +256,8 @@ class AuditManager:
             original = response.choices[0].message.content
             rewritten = self.apply_style_guard(original)
             style_applied = (rewritten != original)
+        except APIConnectionError:
+            raise
         except Exception as e:
             logger.error(f"Generation failed: {e}")
             fb_action, fb_msg = self._build_fallback("")
@@ -302,15 +306,20 @@ class AuditManager:
 
     def _get_fallback_message(self):
         msg = self._fallback_cache.get_message()
-        msg_hash = hashlib.md5(msg.encode('utf-8')).hexdigest()
-        logger.info(f"Selected fallback message hash: {msg_hash}")
+        if msg:
+            msg_hash = hashlib.md5(msg.encode('utf-8')).hexdigest()
+            logger.info(f"Selected fallback message hash: {msg_hash}")
+        else:
+            logger.info("No fallback message configured in audit_fallback.txt")
         return msg
     def _build_fallback(self, suggestion: str):
         s = (suggestion or "").lower()
+        handoff_msg = str(self._get_config('HANDOFF_MESSAGE', '') or '').strip()
+        kb_fb_msg = str(self._get_config('KB_FALLBACK_MESSAGE', '') or '').strip()
         if "human" in s or "manual" in s:
-            return ("handoff_human", self._get_fallback_message())
+            return ("handoff_human", handoff_msg or self._get_fallback_message())
         if "more info" in s or "补充" in s or "提供信息" in s:
-            return ("send_safe_reply", "为确保合规与准确，请补充必要背景信息。")
+            return ("send_safe_reply", kb_fb_msg or self._get_fallback_message())
         return ("send_safe_reply", self._get_fallback_message())
     def apply_style_guard(self, text: str) -> str:
         if not text:

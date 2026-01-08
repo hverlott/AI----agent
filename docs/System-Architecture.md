@@ -84,13 +84,15 @@ graph TD
 
 ```mermaid
 graph TD
-    Sidebar[平台选择] --> Panels[Telegram/WhatsApp/知识库]
+    Sidebar[左侧导航] --> Platform[平台]
+    Sidebar --> DataMgmt[数据管理]
+    Platform --> Panels[Telegram/WhatsApp]
     Panels --> StartStop[启动/停止/重启]
     Panels --> Config[Prompt/Keywords/QA/开关]
     Panels --> Broadcast[群发工具]
     Panels --> Logs[日志查看/清空]
     Panels --> Stats[统计与重置]
-    Panels --> KBPanel[知识库管理/导入/检索/设置]
+    DataMgmt --> KBPanel[知识库管理/导入/检索/设置]
 ```
 
 ## WhatsApp 消息处理（时序）

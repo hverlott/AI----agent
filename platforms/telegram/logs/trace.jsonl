@@ -60,3 +60,134 @@
 {"trace_id": "2da14e87-cad8-4b12-9550-1b8b07d9953d", "timestamp": "2026-01-08T14:03:12.457984", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 11, "platform": "telegram"}
 {"trace_id": "59e276a9-775d-468b-8e5f-5ba7c0550c58", "timestamp": "2026-01-08T14:15:38.970905", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 2, "platform": "telegram"}
 {"trace_id": "c01117fe-754b-4f32-8b3b-d94719d9c1a6", "timestamp": "2026-01-08T14:21:14.559015", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 16, "platform": "telegram"}
+{"trace_id": "c116924a-fc2a-4f0a-abc5-c12c86a4dc12", "timestamp": "2026-01-08T14:25:50.057282", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 6, "platform": "telegram"}
+{"trace_id": "076c160f-f654-4871-88c7-319be807a1d5", "timestamp": "2026-01-08T14:40:00.108558", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 7, "platform": "telegram"}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:33.334249", "event_type": "MSG_RECEIVED", "user_id": "7159315657", "content_len": 2, "platform": "telegram"}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:33.387565", "event_type": "STATE_LOADED", "state": {"user_id": "7159315657", "platform": "tg", "current_stage": "S0", "persona_id": "calm_professional", "intent_score": 0.0, "risk_level": "unknown", "slots": {}, "handoff_required": false, "updated_at": "2026-01-08T15:17:33.387334"}}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.277742", "event_type": "SUPERVISOR_DECIDED", "decision": {"current_stage": "S0", "advance_stage": false, "next_stage": "S0", "persona_id": "calm_professional", "agent_profile_id": "S0_calm_professional_v1", "need_human": false, "override": false}}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.278873", "event_type": "STATE_UPDATED", "before": {"stage": "S0"}, "after": {"stage": "S0"}}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.292180", "event_type": "KB_RETRIEVED", "stage_scope": ["S0"], "hits": []}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.297673", "event_type": "STAGE_AGENT_GENERATED", "used": {"agent_profile_id": "S0_calm_professional_v1", "model": "m-high", "temperature": 0.6, "fallback_used": false}, "prompt_meta": {"stage": "S0", "persona_id": "calm_professional", "kb_hit_ids": []}}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.454811", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.455962", "event_type": "AUDIT_PRIMARY", "passed": false}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.456734", "event_type": "AUDIT_SECONDARY", "passed": false}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:34.457795", "event_type": "FINAL_ACTION", "action": "error"}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:41.289523", "event_type": "MSG_RECEIVED", "user_id": "7061074126", "content_len": 4, "platform": "telegram"}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:41.382759", "event_type": "STATE_LOADED", "state": {"user_id": "7061074126", "platform": "tg", "current_stage": "S0", "persona_id": "calm_professional", "intent_score": 0.0, "risk_level": "unknown", "slots": {}, "handoff_required": false, "updated_at": "2026-01-08T15:17:41.382545"}}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.092487", "event_type": "SUPERVISOR_DECIDED", "decision": {"current_stage": "S0", "advance_stage": false, "next_stage": "S0", "persona_id": "calm_professional", "agent_profile_id": "S0_calm_professional_v1", "need_human": false, "override": false}}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.093419", "event_type": "STATE_UPDATED", "before": {"stage": "S0"}, "after": {"stage": "S0"}}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.106544", "event_type": "KB_RETRIEVED", "stage_scope": ["S0"], "hits": []}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.110797", "event_type": "STAGE_AGENT_GENERATED", "used": {"agent_profile_id": "S0_calm_professional_v1", "model": "m-high", "temperature": 0.6, "fallback_used": false}, "prompt_meta": {"stage": "S0", "persona_id": "calm_professional", "kb_hit_ids": []}}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.264073", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.265924", "event_type": "AUDIT_PRIMARY", "passed": false}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.267127", "event_type": "AUDIT_SECONDARY", "passed": false}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:43.268542", "event_type": "FINAL_ACTION", "action": "error"}
+{"trace_id": "b0966d9d-e717-4bef-837b-ceaa967f4d31", "timestamp": "2026-01-08T15:17:43.446917", "event_type": "REPLY_SENT", "content_len": 32}
+{"trace_id": "b50b980e-7cf1-460d-ab86-01006cf06229", "timestamp": "2026-01-08T15:17:47.368324", "event_type": "REPLY_SENT", "content_len": 32}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:05.375108", "event_type": "MSG_RECEIVED", "user_id": "7061074126", "content_len": 4, "platform": "telegram"}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:05.445840", "event_type": "STATE_LOADED", "state": {"user_id": "7061074126", "platform": "tg", "current_stage": "S0", "persona_id": "calm_professional", "intent_score": 0.0, "risk_level": "unknown", "slots": {}, "handoff_required": false, "updated_at": "2026-01-08T15:17:43.095232"}}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.736824", "event_type": "SUPERVISOR_DECIDED", "decision": {"current_stage": "S0", "advance_stage": false, "next_stage": "S0", "persona_id": "calm_professional", "agent_profile_id": "S0_calm_professional_v1", "need_human": false, "override": false}}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.737803", "event_type": "STATE_UPDATED", "before": {"stage": "S0"}, "after": {"stage": "S0"}}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.750851", "event_type": "KB_RETRIEVED", "stage_scope": ["S0"], "hits": []}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.754221", "event_type": "STAGE_AGENT_GENERATED", "used": {"agent_profile_id": "S0_calm_professional_v1", "model": "m-high", "temperature": 0.6, "fallback_used": false}, "prompt_meta": {"stage": "S0", "persona_id": "calm_professional", "kb_hit_ids": []}}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.915386", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.916644", "event_type": "AUDIT_PRIMARY", "passed": false}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.917955", "event_type": "AUDIT_SECONDARY", "passed": false}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:06.919255", "event_type": "FINAL_ACTION", "action": "error"}
+{"trace_id": "f6516071-dedd-4712-8624-7c914dc9c86c", "timestamp": "2026-01-08T15:23:13.771324", "event_type": "REPLY_SENT", "content_len": 32}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:27.074767", "event_type": "MSG_RECEIVED", "user_id": "7061074126", "content_len": 4, "platform": "telegram"}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:27.134077", "event_type": "STATE_LOADED", "state": {"user_id": "7061074126", "platform": "tg", "current_stage": "S0", "persona_id": "calm_professional", "intent_score": 0.0, "risk_level": "unknown", "slots": {}, "handoff_required": false, "updated_at": "2026-01-08T15:23:06.739951"}}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.458025", "event_type": "SUPERVISOR_DECIDED", "decision": {"current_stage": "S0", "advance_stage": false, "next_stage": "S0", "persona_id": "calm_professional", "agent_profile_id": "S0_calm_professional_v1", "need_human": false, "override": false}}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.459616", "event_type": "STATE_UPDATED", "before": {"stage": "S0"}, "after": {"stage": "S0"}}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.470746", "event_type": "KB_RETRIEVED", "stage_scope": ["S0"], "hits": []}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.474264", "event_type": "STAGE_AGENT_GENERATED", "used": {"agent_profile_id": "S0_calm_professional_v1", "model": "m-high", "temperature": 0.6, "fallback_used": false}, "prompt_meta": {"stage": "S0", "persona_id": "calm_professional", "kb_hit_ids": []}}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.626294", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.627832", "event_type": "AUDIT_PRIMARY", "passed": false}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.629169", "event_type": "AUDIT_SECONDARY", "passed": false}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:28.630036", "event_type": "FINAL_ACTION", "action": "error"}
+{"trace_id": "015c7f25-3602-4d22-b7a5-0aa6dac77af6", "timestamp": "2026-01-08T15:28:37.507675", "event_type": "REPLY_SENT", "content_len": 32}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:49.791673", "event_type": "MSG_RECEIVED", "user_id": "7061074126", "content_len": 4, "platform": "telegram"}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:49.848361", "event_type": "STATE_LOADED", "state": {"user_id": "7061074126", "platform": "tg", "current_stage": "S0", "persona_id": "calm_professional", "intent_score": 0.0, "risk_level": "unknown", "slots": {}, "handoff_required": false, "updated_at": "2026-01-08T15:28:28.462261"}}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.138320", "event_type": "SUPERVISOR_DECIDED", "decision": {"current_stage": "S0", "advance_stage": false, "next_stage": "S0", "persona_id": "calm_professional", "agent_profile_id": "S0_calm_professional_v1", "need_human": false, "override": false}}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.139196", "event_type": "STATE_UPDATED", "before": {"stage": "S0"}, "after": {"stage": "S0"}}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.150489", "event_type": "KB_RETRIEVED", "stage_scope": ["S0"], "hits": []}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.153076", "event_type": "STAGE_AGENT_GENERATED", "used": {"agent_profile_id": "S0_calm_professional_v1", "model": "m-high", "temperature": 0.6, "fallback_used": false}, "prompt_meta": {"stage": "S0", "persona_id": "calm_professional", "kb_hit_ids": []}}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.303647", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.305124", "event_type": "AUDIT_PRIMARY", "passed": false}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.306983", "event_type": "AUDIT_SECONDARY", "passed": false}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:51.308520", "event_type": "FINAL_ACTION", "action": "error"}
+{"trace_id": "155f0733-3795-4c71-b7bd-ab8ec40d8432", "timestamp": "2026-01-08T15:28:56.596012", "event_type": "REPLY_SENT", "content_len": 32}
+{"trace_id": "d4f8e6c4-4154-496f-94f5-00d871b8a15c", "timestamp": "2026-01-08T15:29:15.745254", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 5, "platform": "telegram"}
+{"trace_id": "b7d4aead-10bf-4121-bc52-7567f07506c6", "timestamp": "2026-01-08T15:29:31.167601", "event_type": "MSG_RECEIVED", "user_id": "-4996243319", "content_len": 54, "platform": "telegram"}
+{"trace_id": "d377c8d7-7001-4f6d-86c7-73ee80b9308f", "timestamp": "2026-01-08T15:31:08.715268", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "d377c8d7-7001-4f6d-86c7-73ee80b9308f", "timestamp": "2026-01-08T15:31:08.716440", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "d377c8d7-7001-4f6d-86c7-73ee80b9308f", "timestamp": "2026-01-08T15:31:08.717537", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "d377c8d7-7001-4f6d-86c7-73ee80b9308f", "timestamp": "2026-01-08T15:31:08.718520", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "4891d07b-3173-49de-8acb-93ef38a19bee", "timestamp": "2026-01-08T15:45:40.137375", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "4891d07b-3173-49de-8acb-93ef38a19bee", "timestamp": "2026-01-08T15:45:40.138430", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "4891d07b-3173-49de-8acb-93ef38a19bee", "timestamp": "2026-01-08T15:45:40.140477", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "4891d07b-3173-49de-8acb-93ef38a19bee", "timestamp": "2026-01-08T15:45:40.141734", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "abb947aa-b16f-455a-aaaa-9bb3a4f472c2", "timestamp": "2026-01-08T15:46:28.129564", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "abb947aa-b16f-455a-aaaa-9bb3a4f472c2", "timestamp": "2026-01-08T15:46:28.130725", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "abb947aa-b16f-455a-aaaa-9bb3a4f472c2", "timestamp": "2026-01-08T15:46:28.132409", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "abb947aa-b16f-455a-aaaa-9bb3a4f472c2", "timestamp": "2026-01-08T15:46:28.133527", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "65dafc99-83ea-4469-881e-0a70a1e8bd12", "timestamp": "2026-01-08T15:46:52.458838", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "65dafc99-83ea-4469-881e-0a70a1e8bd12", "timestamp": "2026-01-08T15:46:52.459898", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "65dafc99-83ea-4469-881e-0a70a1e8bd12", "timestamp": "2026-01-08T15:46:52.461793", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "65dafc99-83ea-4469-881e-0a70a1e8bd12", "timestamp": "2026-01-08T15:46:52.463044", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "f1c37549-6d9a-4931-8c84-3d497ab6d93a", "timestamp": "2026-01-08T15:47:16.131014", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "f1c37549-6d9a-4931-8c84-3d497ab6d93a", "timestamp": "2026-01-08T15:47:16.132063", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "f1c37549-6d9a-4931-8c84-3d497ab6d93a", "timestamp": "2026-01-08T15:47:16.134068", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "f1c37549-6d9a-4931-8c84-3d497ab6d93a", "timestamp": "2026-01-08T15:47:16.135722", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "ef7abab4-d820-4e4a-bb15-136ea1960e4c", "timestamp": "2026-01-08T15:47:41.120633", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "ef7abab4-d820-4e4a-bb15-136ea1960e4c", "timestamp": "2026-01-08T15:47:41.121790", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "ef7abab4-d820-4e4a-bb15-136ea1960e4c", "timestamp": "2026-01-08T15:47:41.123036", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "ef7abab4-d820-4e4a-bb15-136ea1960e4c", "timestamp": "2026-01-08T15:47:41.123843", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "3c4b404a-9b82-49b6-ba2e-7366450007cd", "timestamp": "2026-01-08T15:49:22.550669", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "3c4b404a-9b82-49b6-ba2e-7366450007cd", "timestamp": "2026-01-08T15:49:22.551400", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "3c4b404a-9b82-49b6-ba2e-7366450007cd", "timestamp": "2026-01-08T15:49:22.552173", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "3c4b404a-9b82-49b6-ba2e-7366450007cd", "timestamp": "2026-01-08T15:49:22.553283", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "8c1c700f-53e5-4fcd-bc17-afc9e135529c", "timestamp": "2026-01-08T15:51:01.725328", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "8c1c700f-53e5-4fcd-bc17-afc9e135529c", "timestamp": "2026-01-08T15:51:01.726238", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "8c1c700f-53e5-4fcd-bc17-afc9e135529c", "timestamp": "2026-01-08T15:51:01.727348", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "8c1c700f-53e5-4fcd-bc17-afc9e135529c", "timestamp": "2026-01-08T15:51:01.728466", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "267bb08a-bd97-4a00-a040-97d36fb1e3da", "timestamp": "2026-01-08T15:51:33.657146", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "267bb08a-bd97-4a00-a040-97d36fb1e3da", "timestamp": "2026-01-08T15:51:33.658082", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "267bb08a-bd97-4a00-a040-97d36fb1e3da", "timestamp": "2026-01-08T15:51:33.658884", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "267bb08a-bd97-4a00-a040-97d36fb1e3da", "timestamp": "2026-01-08T15:51:33.659606", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "50bbce30-a058-4631-a5f9-a4a58e93dfe1", "timestamp": "2026-01-08T15:51:54.771984", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "50bbce30-a058-4631-a5f9-a4a58e93dfe1", "timestamp": "2026-01-08T15:51:54.772872", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "50bbce30-a058-4631-a5f9-a4a58e93dfe1", "timestamp": "2026-01-08T15:51:54.773604", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "50bbce30-a058-4631-a5f9-a4a58e93dfe1", "timestamp": "2026-01-08T15:51:54.775054", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "c124e44e-7eb8-4237-a557-628d62c5f3f7", "timestamp": "2026-01-08T15:53:27.682324", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "c124e44e-7eb8-4237-a557-628d62c5f3f7", "timestamp": "2026-01-08T15:53:27.683438", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "c124e44e-7eb8-4237-a557-628d62c5f3f7", "timestamp": "2026-01-08T15:53:27.684798", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "c124e44e-7eb8-4237-a557-628d62c5f3f7", "timestamp": "2026-01-08T15:53:27.686961", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "8c3fb3b3-61d7-446d-8f66-69118e61167f", "timestamp": "2026-01-08T16:03:41.962483", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "8c3fb3b3-61d7-446d-8f66-69118e61167f", "timestamp": "2026-01-08T16:03:41.963519", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "8c3fb3b3-61d7-446d-8f66-69118e61167f", "timestamp": "2026-01-08T16:03:41.964386", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "8c3fb3b3-61d7-446d-8f66-69118e61167f", "timestamp": "2026-01-08T16:03:41.965746", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "29530aef-2ec9-4933-a256-25e567414e23", "timestamp": "2026-01-08T16:04:31.409570", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "29530aef-2ec9-4933-a256-25e567414e23", "timestamp": "2026-01-08T16:04:31.412174", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "29530aef-2ec9-4933-a256-25e567414e23", "timestamp": "2026-01-08T16:04:31.414094", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "29530aef-2ec9-4933-a256-25e567414e23", "timestamp": "2026-01-08T16:04:31.415364", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "df740ba4-ed90-46d5-9448-eacebcf443fc", "timestamp": "2026-01-08T16:06:55.451846", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "df740ba4-ed90-46d5-9448-eacebcf443fc", "timestamp": "2026-01-08T16:06:55.452764", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "df740ba4-ed90-46d5-9448-eacebcf443fc", "timestamp": "2026-01-08T16:06:55.454476", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "df740ba4-ed90-46d5-9448-eacebcf443fc", "timestamp": "2026-01-08T16:06:55.455784", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "e1f2db9f-050b-40e1-91a0-fcae0d504bad", "timestamp": "2026-01-08T16:09:14.755604", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "e1f2db9f-050b-40e1-91a0-fcae0d504bad", "timestamp": "2026-01-08T16:09:14.756560", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "e1f2db9f-050b-40e1-91a0-fcae0d504bad", "timestamp": "2026-01-08T16:09:14.757429", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "e1f2db9f-050b-40e1-91a0-fcae0d504bad", "timestamp": "2026-01-08T16:09:14.758273", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "67bde1da-1507-40ef-9cae-7d05ab8c784b", "timestamp": "2026-01-08T16:09:57.048273", "event_type": "STYLE_GUARD_APPLIED", "value": true}
+{"trace_id": "67bde1da-1507-40ef-9cae-7d05ab8c784b", "timestamp": "2026-01-08T16:09:57.049467", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "67bde1da-1507-40ef-9cae-7d05ab8c784b", "timestamp": "2026-01-08T16:09:57.051206", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "67bde1da-1507-40ef-9cae-7d05ab8c784b", "timestamp": "2026-01-08T16:09:57.052551", "event_type": "FINAL_ACTION", "action": "send_rewritten"}
+{"trace_id": "d2a6de11-87cb-4b9d-914e-dc28824506a2", "timestamp": "2026-01-08T16:10:39.762580", "event_type": "STYLE_GUARD_APPLIED", "value": false}
+{"trace_id": "d2a6de11-87cb-4b9d-914e-dc28824506a2", "timestamp": "2026-01-08T16:10:39.763774", "event_type": "AUDIT_PRIMARY", "passed": true}
+{"trace_id": "d2a6de11-87cb-4b9d-914e-dc28824506a2", "timestamp": "2026-01-08T16:10:39.766205", "event_type": "AUDIT_SECONDARY", "passed": true}
+{"trace_id": "d2a6de11-87cb-4b9d-914e-dc28824506a2", "timestamp": "2026-01-08T16:10:39.768130", "event_type": "FINAL_ACTION", "action": "send_normal"}
+{"trace_id": "71451ff9-b83e-4ba3-8383-d1f35c5654cf", "timestamp": "2026-01-08T16:15:21.508858", "event_type": "QA_HIT", "reply_len": 162}
+{"trace_id": "71451ff9-b83e-4ba3-8383-d1f35c5654cf", "timestamp": "2026-01-08T16:15:21.570178", "event_type": "REPLY_SENT", "content_len": 162}
+{"trace_id": "0a05bacc-a5a7-414b-b79a-5d7e3766ef2c", "timestamp": "2026-01-08T16:16:00.315335", "event_type": "QA_HIT", "reply_len": 162}
+{"trace_id": "0a05bacc-a5a7-414b-b79a-5d7e3766ef2c", "timestamp": "2026-01-08T16:16:00.368089", "event_type": "REPLY_SENT", "content_len": 162}
