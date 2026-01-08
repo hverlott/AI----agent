@@ -4,6 +4,8 @@
 
 `admin.py` 是一个基于 **Streamlit** 构建的 Web 管理后台，提供图形化界面来管理 Telegram AI Bot 的所有功能。
 
+仓库地址： https://github.com/hverlott/AI----agent
+
 **核心优势：**
 - ✅ 无需命令行操作
 - ✅ 实时配置更新
@@ -297,6 +299,8 @@ await send_broadcast_async(chats, message, update_progress)
 ---
 
 ## ⚠️ 注意事项
+
+- 隐私与安全：本仓库已忽略并从历史中移除了私密配置、会话文件、日志、数据库和大型二进制/压缩文件（例如 `.env`、`*.session`、`data/tenants/`、`release/`、`*.zip`、`*.exe`）。请不要将你的私人密钥、会话文件或租户数据提交到仓库。有关责任和上报安全问题，请参阅 SECURITY.md。
 
 ### 安全警告
 1. **不要暴露端口**：默认只监听 localhost，不要修改为 0.0.0.0
