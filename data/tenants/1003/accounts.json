@@ -1,0 +1,34 @@
+{
+  "accounts": [
+    {
+      "platform": "WeChat",
+      "username": "",
+      "group": "",
+      "tags": [],
+      "refresh_minutes": 60,
+      "updated_at": "2026-01-09T14:41:30.670545"
+    },
+    {
+      "platform": "Telegram",
+      "username": "admin_session",
+      "group": "Imported",
+      "tags": [
+        "batch_import"
+      ],
+      "refresh_minutes": 60,
+      "updated_at": "2026-01-09T15:06:04.237160",
+      "session_file": "admin_session.session"
+    },
+    {
+      "platform": "Telegram",
+      "username": "userbot_session",
+      "group": "Imported",
+      "tags": [
+        "batch_import"
+      ],
+      "refresh_minutes": 60,
+      "updated_at": "2026-01-09T15:06:04.238527",
+      "session_file": "userbot_session.session"
+    }
+  ]
+}

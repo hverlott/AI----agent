@@ -1,0 +1,91 @@
+2026-01-09 15:36:25,812 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:37:53,689 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:38:05,552 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:40:55,426 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:41:37,061 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:04,506 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:04,699 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:06,806 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:07,003 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:13,065 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:20,930 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:42:57,536 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:43:04,132 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:43:15,258 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:44:11,049 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:51:28,771 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:51:53,660 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:52:10,080 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:52:42,080 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:54:05,128 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:54:16,142 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:54:41,741 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:54:55,825 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:57:29,885 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:58:12,094 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:58:47,437 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 15:59:45,768 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:03:08,978 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:05:58,270 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:06:13,724 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:06:17,991 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:06:21,978 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:07:50,450 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:07:54,004 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:14:10,599 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:28:45,036 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:29:05,524 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:48:48,434 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:55:37,272 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 16:56:00,422 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:02:48,534 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:02:54,231 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:02:57,909 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:03:02,587 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:03:04,950 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:03:12,479 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:03:55,091 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:03:59,890 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:04:02,759 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:04:02,761 - INFO - Audit mode: local
+2026-01-09 17:04:03,764 - INFO - Auditing draft: 你好！今天有什么需要我帮忙的吗？...
+2026-01-09 17:04:03,765 - INFO - Auditing content for user input: 你好...
+2026-01-09 17:04:05,635 - INFO - Audit response: {
+  "status": "PASS",
+  "reason": "回复符合业务需求，语气自然友好，无安全风险，未暴露AI身份。",
+  "suggestion": "为避免重复感，可考虑略微调整问候方式，如'您好！很高兴为您服务'，但当前回复已合格。"
+}
+2026-01-09 17:04:16,806 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:10:23,904 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:17:16,871 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:19:44,513 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:20:09,954 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:30:57,999 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:45:00,963 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:47:12,011 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:47:12,013 - INFO - Audit mode: local
+2026-01-09 17:47:23,796 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:47:23,798 - INFO - Audit mode: local
+2026-01-09 17:47:54,482 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:47:54,485 - INFO - Audit mode: local
+2026-01-09 17:56:26,698 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:56:33,419 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:56:35,120 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:56:38,700 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:03,058 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:08,084 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:17,396 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:33,821 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:37,266 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:45,542 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:57:45,543 - INFO - Audit mode: local
+2026-01-09 17:58:18,583 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:58:18,584 - INFO - Audit mode: local
+2026-01-09 17:58:29,782 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:58:29,783 - INFO - Audit mode: local
+2026-01-09 17:59:21,839 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 17:59:21,842 - INFO - Audit mode: local
+2026-01-09 18:00:07,184 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 18:00:13,132 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 18:00:16,132 - INFO - Loaded keywords from platforms\telegram\keywords.json
+2026-01-09 18:01:36,018 - INFO - Loaded keywords from platforms\telegram\keywords.json
