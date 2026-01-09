@@ -1143,7 +1143,7 @@ def format_time(dt_obj, tz_name=None):
     if isinstance(dt_obj, str):
         try:
             dt_obj = datetime.fromisoformat(dt_obj)
-        except ValueError:
+        except:
             return dt_obj
             
     try:
@@ -2167,11 +2167,11 @@ def render_kb_panel():
         st.caption("Optional dependencies: PyPDF2, python-docx, openpyxl.")
         missing = []
         try: import PyPDF2
-        except ImportError: missing.append("PyPDF2")
+        except: missing.append("PyPDF2")
         try: import docx
-        except ImportError: missing.append("python-docx")
+        except: missing.append("python-docx")
         try: import openpyxl
-        except ImportError: missing.append("openpyxl")
+        except: missing.append("openpyxl")
         
         if missing:
             st.warning("Missing: " + ", ".join(missing))
@@ -5515,7 +5515,9 @@ def start_whatsapp_bot():
                 env=env, # 注入环境变量
                 stdout=log_handle,
                 stderr=subprocess.STDOUT,
-                creationflags=subprocess.CREATE_NO_WINDOW
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                text=True,
+                bufsize=1
             )
         else:
             process = subprocess.Popen(
@@ -5523,11 +5525,13 @@ def start_whatsapp_bot():
                 cwd=whatsapp_dir,
                 env=env, # 注入环境变量
                 stdout=log_handle,
-                stderr=subprocess.STDOUT
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
             )
         
         # 保存 PID 到租户目录
-        with open(pid_file, 'w') as f:
+        with open(pid_file, 'w', encoding='utf-8') as f:
             f.write(str(process.pid))
         
         # 注意：不要关闭 log_handle，让进程继续使用
@@ -5543,7 +5547,7 @@ def stop_whatsapp_bot():
     
     try:
         if os.path.exists(pid_file):
-            with open(pid_file, 'r') as f:
+            with open(pid_file, 'r', encoding='utf-8') as f:
                 pid = int(f.read().strip())
             
             import psutil
@@ -5572,7 +5576,7 @@ def render_whatsapp_panel():
     if os.path.exists(qr_image_path) and os.path.exists(status_file_path):
         try:
             import json
-            with open(status_file_path, 'r') as f:
+            with open(status_file_path, 'r', encoding='utf-8') as f:
                 login_status = json.load(f)
             
             if login_status.get('status') == 'waiting' and login_status.get('qr_available'):
