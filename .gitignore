@@ -1,25 +1,100 @@
-venv*/
-venv313/
-\.venv/
-build/
-dist/
-release/
-\.pytest_cache/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-data/backups/
-backups/
-*.log
-*.sqlite
-*.db
+# Environment variables
 .env
-/.idea/
-.vscode/
-node_modules/
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
 *.egg-info/
+.installed.cfg
 *.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/
+venv*/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Telegram Sessions
+*.session
+*.session-journal
+
+# User Data & Tenants
+data/tenants/
+data/backups/
+data/knowledge_base/files/
+data/knowledge_base/db.json
+# Exception for keeping directory structure if needed, but better to just ignore data/tenants content
+# !data/tenants/.keep
+
+# WhatsApp Platform
+platforms/whatsapp/sessions/
+platforms/whatsapp/.wwebjs_auth/
+platforms/whatsapp/.wwebjs_cache/
+platforms/whatsapp/node_modules/
+platforms/whatsapp/qr_code.png
+platforms/whatsapp/stats.json
+platforms/whatsapp/config.txt
+platforms/whatsapp/keywords.txt
+platforms/whatsapp/prompt.txt
+platforms/whatsapp/bot.pid
+platforms/whatsapp/bot.log
+
+# Telegram Platform Specifics
+platforms/telegram/config.txt
+platforms/telegram/keywords.txt
+platforms/telegram/prompt.txt
+platforms/telegram/stats.json
+platforms/telegram/bot.pid
+platforms/telegram/bot.log
+platforms/telegram/audit_fallback.txt
+platforms/telegram/audit_prompt.txt
+platforms/telegram/extra_kb.txt
+platforms/telegram/qa.txt
+
+# Release specific ignores (apply recursively)
+releases/*/data/tenants/
+releases/*/data/backups/
+releases/*/platforms/whatsapp/sessions/
+releases/*/platforms/whatsapp/node_modules/
+releases/*/platforms/whatsapp/stats.json
+releases/*/platforms/whatsapp/qr_code.png
+releases/*/platforms/whatsapp/bot.pid
+releases/*/platforms/whatsapp/bot.log
+
+# OS
 .DS_Store
-*.egg-info/
-.tox/
+Thumbs.db

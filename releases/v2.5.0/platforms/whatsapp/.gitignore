@@ -1,0 +1,24 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Session data
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Logs
+*.log
+bot.log
+
+# PID files
+*.pid
+bot.pid
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+
