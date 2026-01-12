@@ -162,6 +162,35 @@ st.markdown("""
         box-shadow: var(--shadow-sm);
         margin-bottom: 20px;
     }
+
+    /* Streamlit Header (Toolbar) */
+    header[data-testid="stHeader"] {
+        background-color: #F8FAFC !important; /* High saturation/Distinct tone */
+        border-bottom: 1px solid var(--border);
+    }
+    
+    /* Toolbar Buttons & Menu */
+    header[data-testid="stHeader"] button {
+        color: var(--accent) !important;
+        font-weight: 600;
+    }
+
+    /* Sidebar Toggle Button (Custom Class Targeting) */
+    .st-emotion-cache-pd6qx2, [data-testid="stSidebarCollapsedControl"] {
+        background-color: #EFF6FF !important; /* Light Blue Accent */
+        border: 2px solid var(--accent) !important;
+        border-radius: 8px !important;
+        color: var(--accent) !important;
+        padding: 6px !important;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2) !important;
+        transition: all 0.2s ease !important;
+    }
+    .st-emotion-cache-pd6qx2:hover, [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: var(--accent) !important;
+        color: #FFFFFF !important;
+        transform: scale(1.1);
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4) !important;
+    }
     @media (min-width: 768px) {
         .topbar {
             flex-direction: row;
@@ -537,21 +566,21 @@ I18N = {
         "tg_login_btn": "未登录 Telegram（点击登录）",
         "tg_config_success": "✅ 已配置",
         "tg_config_missing": "❌ 未配置",
-        "tg_panel_header": "📱 Telegram AI Bot 控制面板",
-        "tg_flow_entry": "**入口**：用户在 Telegram 发送消息 → Telethon 捕获 NewMessage → main.py 统一处理",
-        "tg_flow_trigger": "**触发检查**：私聊/被@/关键词/上下文/群白名单",
-        "tg_flow_branch_a": "**分支 A：QA 命中**",
-        "tg_flow_branch_a_1": "- 解析 qa.txt 匹配固定答案",
-        "tg_flow_branch_a_2": "- 直接回复到 Telegram",
-        "tg_flow_branch_a_3": "- 写入日志与更新统计",
-        "tg_flow_branch_b": "**分支 B：QA 未命中**",
-        "tg_flow_branch_b_1": "- 检索知识库 Top-2 作为上下文",
-        "tg_flow_branch_b_2": "- 调用 AI 生成草稿",
-        "tg_flow_branch_b_3": "- 关键词前置拦截：允许词优先；命中违禁/敏感→兜底",
-        "tg_flow_branch_b_4": "- 审核员 AI（双机拦截）：本地/远程，返回 PASS/FAIL 与建议",
-        "tg_flow_branch_b_5": "- FAIL 重试至上限，超限兜底；PASS 发送 AI 回复",
-        "tg_flow_branch_b_6": "- 写入审核与系统日志，更新统计",
-        "tg_flow_kw_prio": "**关键词优先级**",
+        "tg_panel_header": "Telegram AI Bot 控制面板",
+        "tg_flow_entry": "**1. 消息接入 (Ingest)**：用户发送消息 → Telethon 监听事件 → 权限与意图识别",
+        "tg_flow_trigger": "**2. 核心路由 (Routing)**：判断消息类型 (私聊/群聊) 与 触发条件 (关键词/白名单)",
+        "tg_flow_branch_a": "**3A. 快速响应 (QA/Fast Path)**",
+        "tg_flow_branch_a_1": "- 匹配 `qa.txt` 固定问答库",
+        "tg_flow_branch_a_2": "- 命中则直接返回预设答案",
+        "tg_flow_branch_a_3": "- 记录基础日志",
+        "tg_flow_branch_b": "**3B. 智能生成 (AI/RAG Path)**",
+        "tg_flow_branch_b_1": "- **检索**: 查询知识库 (KBEngine) 获取 Top-K 上下文",
+        "tg_flow_branch_b_2": "- **生成**: 构建 Prompt (System+KB+History) 调用 LLM",
+        "tg_flow_branch_b_3": "- **审计**: AuditManager 双重风控 (本地规则 + AI 审核)",
+        "tg_flow_branch_b_4": "- **决策**: 审核通过 -> 发送回复；审核拒绝 -> 触发兜底/重试",
+        "tg_flow_branch_b_5": "- **反馈**: 记录完整交互日志 (User/Bot/Audit/Token)",
+        "tg_flow_branch_b_6": "",
+        "tg_flow_kw_prio": "**4. 安全防护 (Security)**",
         "tg_flow_kw_prio_1": "- allow：命中直接允许",
         "tg_flow_kw_prio_2": "- block：命中直接拒绝，触发兜底",
         "tg_flow_kw_prio_3": "- sensitive：记录并拒绝（可调整为警告）",
