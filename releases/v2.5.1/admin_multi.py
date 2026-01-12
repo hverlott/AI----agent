@@ -35,7 +35,7 @@ except ImportError:
 
 # 页面配置
 # Fetch system config
-website_title = db.get_system_config("website_title", "SaaS AI System v2.5.0")
+website_title = db.get_system_config("website_title", "SaaS AI System v2.5.1")
 
 st.set_page_config(
     page_title=website_title,
@@ -43,7 +43,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-APP_VERSION = "2.5.0"
+APP_VERSION = "2.5.1"
 
 # Data Directory Logic
 if "SAAS_DATA_DIR" in os.environ:
@@ -3014,6 +3014,8 @@ def render_telegram_config():
             'GROUP_REPLY': True, 
             'CONV_ORCHESTRATION': False,
             'CONVERSATION_MODE': 'ai_visible',
+            'SENDER_FILTER_ENABLED': False,
+            'SENDER_NAME_FILTER_KEYWORDS': '',
             'AI_TEMPERATURE': 0.7,
             'AUDIT_ENABLED': True,
             'AUDIT_MAX_RETRIES': 3,
@@ -3036,7 +3038,7 @@ def render_telegram_config():
                     raw_value = parts[1].strip()
                     value = raw_value.lower()
                     
-                    if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION', 'KB_ONLY_REPLY']:
+                    if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION', 'KB_ONLY_REPLY', 'SENDER_FILTER_ENABLED']:
                         current_config[key] = (value == 'on')
                     elif key == 'AI_TEMPERATURE':
                         try: current_config[key] = float(value)
@@ -3064,6 +3066,8 @@ def render_telegram_config():
                     elif key == 'HANDOFF_MESSAGE':
                         current_config[key] = raw_value
                     elif key == 'KB_FALLBACK_MESSAGE':
+                        current_config[key] = raw_value
+                    elif key == 'SENDER_NAME_FILTER_KEYWORDS':
                         current_config[key] = raw_value
         
         col1, col2 = st.columns(2)
@@ -3096,6 +3100,11 @@ def render_telegram_config():
                 value=current_config['GROUP_REPLY'],
                 key="tg_group"
             )
+            sender_filter_enabled = st.toggle(
+                "👤 群聊发消息者昵称过滤",
+                value=current_config.get('SENDER_FILTER_ENABLED', False),
+                key="tg_sender_filter_enabled"
+            )
             st.markdown(tr("tg_cfg_conv_mode"))
             conv_options = [tr("tg_cfg_conv_ai"), tr("tg_cfg_conv_human")]
             mode_idx = 0 if current_config.get('CONVERSATION_MODE','ai_visible') == 'ai_visible' else 1
@@ -3116,6 +3125,7 @@ def render_telegram_config():
         with hk_col2:
             handoff_message = st.text_input("人工兜底话术（单行）", value=current_config.get('HANDOFF_MESSAGE',''), key="tg_handoff_message")
         kb_fallback_message = st.text_input("KB_ONLY兜底话术（单行）", value=current_config.get('KB_FALLBACK_MESSAGE',''), key="tg_kb_fallback_message")
+        sender_filter_keywords = st.text_input("昵称过滤关键词（逗号分隔）", value=current_config.get('SENDER_NAME_FILTER_KEYWORDS',''), key="tg_sender_filter_keywords")
     
     st.divider()
     
@@ -3238,6 +3248,9 @@ PRIVATE_REPLY={'on' if private_reply else 'off'}
 # 群消息回复开关
 GROUP_REPLY={'on' if group_reply else 'off'}
 
+# 群聊发消息者昵称过滤
+SENDER_FILTER_ENABLED={'on' if sender_filter_enabled else 'off'}
+
 # AI 剧本引擎 (SOP/Persona/KB)
 CONV_ORCHESTRATION={'on' if orchestration_enabled else 'off'}
 
@@ -3255,6 +3268,9 @@ HANDOFF_MESSAGE={handoff_message}
 
 # KB_ONLY兜底话术（单行）
 KB_FALLBACK_MESSAGE={kb_fallback_message}
+
+# 昵称过滤关键词（逗号分隔）
+SENDER_NAME_FILTER_KEYWORDS={sender_filter_keywords}
 
 # AI 温度 (0.0-1.0)
 AI_TEMPERATURE={ai_temperature:.1f}
@@ -3818,7 +3834,7 @@ def render_telegram_flow():
         st.markdown(tr("tg_flow_files_4"))
 
 def _ensure_data_dirs():
-    base = os.path.join(BASE_DIR, "data")
+    base = str(DATA_DIR)
     os.makedirs(base, exist_ok=True)
     os.makedirs(os.path.join(base, "config"), exist_ok=True)
     os.makedirs(os.path.join(base, "logs"), exist_ok=True)
@@ -7576,7 +7592,7 @@ def render_system_admin_panel():
     with tabs[5]:
         with st.expander("🔤 网站与登录配置", expanded=True):
             with st.form("sys_config_form"):
-                current_web_title = db.get_system_config("website_title", "SaaS AI System v2.5.0")
+                current_web_title = db.get_system_config("website_title", "SaaS AI System v2.5.1")
                 current_login_title = db.get_system_config("login_panel_title", "SaaS AI System - Admin Login")
                 
                 new_web_title = st.text_input("网站标题 (Website Title)", value=current_web_title)
@@ -7671,7 +7687,7 @@ def main():
     # 侧边栏底部信息
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📊 系统信息")
-    web_title_disp = db.get_system_config("website_title", "SaaS AI System v2.5.0")
+    web_title_disp = db.get_system_config("website_title", "SaaS AI System v2.5.1")
     st.sidebar.caption(f"网站: {web_title_disp}")
     st.sidebar.caption(f"版本: {APP_VERSION}")
     st.sidebar.caption(f"Python: {sys.version.split()[0]}")

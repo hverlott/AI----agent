@@ -1,7 +1,7 @@
 @echo off
 set "SAAS_ROOT=%~dp0"
 set "SAAS_DATA_DIR=%SAAS_ROOT%data"
-set "LATEST_VERSION=v2.5.0"
+set "LATEST_VERSION=v2.5.1"
 
 echo Starting SaaS AI Bot System (Version %LATEST_VERSION%)...
 echo Data Directory: %SAAS_DATA_DIR%

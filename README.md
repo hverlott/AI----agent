@@ -1,10 +1,10 @@
 # AI Customer Service System (SaaS Edition)
 
-> **Latest Version**: v2.5.0 (Cloud-Native Multi-Tenant)
+> **Latest Version**: v2.5.1 (Cloud-Native Multi-Tenant)
 
 SaaS-AIs is an enterprise-grade AI customer service management system supporting multi-tenancy and multi-platform integration (Telegram, WhatsApp, etc.). It leverages LLM technology to provide automatic replies, knowledge base Q&A, intent recognition, and multi-turn conversation management.
 
-## 🚀 Key Features (v2.5.0)
+## 🚀 Key Features (v2.5.1)
 
 - **Multi-Tenant Architecture**: Complete data and configuration isolation for infinite tenants.
 - **Platform Isolation**: Dedicated environments for Telegram and WhatsApp with independent data paths.
@@ -14,12 +14,12 @@ SaaS-AIs is an enterprise-grade AI customer service management system supporting
 
 ## 📂 Repository Structure
 
-The project follows a release-based structure. The latest stable version is located in `releases/v2.5.0`.
+The project follows a release-based structure. The latest stable version is located in `releases/v2.5.1`.
 
 ```
 /
 ├── releases/
-│   └── v2.5.0/           <-- 🌟 MAIN PROJECT ROOT
+│   └── v2.5.1/           <-- 🌟 MAIN PROJECT ROOT
 │       ├── admin_multi.py
 │       ├── platforms/
 │       ├── src/
@@ -32,7 +32,7 @@ The project follows a release-based structure. The latest stable version is loca
 ### 1. Clone & Navigate
 ```bash
 git clone https://github.com/hverlott/AI----agent.git
-cd AI----agent/releases/v2.5.0
+cd AI----agent/releases/v2.5.1
 ```
 
 ### 2. Install Dependencies
@@ -69,11 +69,11 @@ streamlit run admin_multi.py
 
 ## 📚 Documentation
 
-Detailed documentation can be found in the [docs](releases/v2.5.0/docs) directory of the release.
+Detailed documentation can be found in the [docs](releases/v2.5.1/docs) directory of the release.
 
-- [User Guide](releases/v2.5.0/docs/help_center/v1.0/zh_CN/1索引.md)
-- [Deployment Guide](releases/v2.5.0/DEPLOYMENT_GUIDE.md)
-- [WhatsApp Guide](releases/v2.5.0/WHATSAPP_GUIDE.md)
+- [User Guide](releases/v2.5.1/docs/help_center/v1.0/zh_CN/1索引.md)
+- [Deployment Guide](releases/v2.5.1/DEPLOYMENT_GUIDE.md)
+- [WhatsApp Guide](releases/v2.5.1/WHATSAPP_GUIDE.md)
 
 ## 📄 License
 MIT License

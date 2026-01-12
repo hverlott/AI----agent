@@ -177,7 +177,7 @@ def super_admin_view():
     # 5. Upgrade
     with tabs[4]:
         st.subheader("System Update")
-        st.info(f"Current Version: V2.4.0 (Build {int(time.time())})")
+        st.info(f"Current Version: V2.5.1 (Build {int(time.time())})")
         if st.button("Check for Updates"):
             with st.spinner("Checking remote repository..."):
                 time.sleep(2)
