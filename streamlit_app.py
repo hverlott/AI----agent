@@ -3,7 +3,7 @@ import sys
 
 # Calculate paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
-app_dir = os.path.join(current_dir, "releases", "v2.5.0")
+app_dir = os.path.join(current_dir, "releases", "v2.5.1")
 
 # Add app dir to sys.path so imports work
 sys.path.insert(0, app_dir)
