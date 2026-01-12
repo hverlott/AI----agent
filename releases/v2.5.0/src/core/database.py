@@ -26,6 +26,16 @@ class DatabaseManager:
         conn = self._get_conn()
         cursor = conn.cursor()
         
+        # 会话表 (Session Persistence)
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sessions (
+            token TEXT PRIMARY KEY,
+            user_id INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TIMESTAMP
+        )
+        ''')
+
         # IP白名单 (V2.4.0 Security)
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -737,6 +747,27 @@ class DatabaseManager:
     def get_user_by_username(self, username: str) -> Optional[Dict]:
         rows = self.execute_query("SELECT * FROM users WHERE username = ?", (username,))
         return dict(rows[0]) if rows else None
+
+    def get_user_by_id(self, user_id: int) -> Optional[Dict]:
+        rows = self.execute_query("SELECT * FROM users WHERE id = ?", (user_id,))
+        return dict(rows[0]) if rows else None
+
+    def create_session(self, token: str, user_id: int, expires_at: datetime):
+        self.execute_update(
+            "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
+            (token, user_id, expires_at)
+        )
+
+    def get_session(self, token: str) -> Optional[Dict]:
+        rows = self.execute_query("SELECT * FROM sessions WHERE token = ?", (token,))
+        return dict(rows[0]) if rows else None
+
+    def delete_session(self, token: str):
+        self.execute_update("DELETE FROM sessions WHERE token = ?", (token,))
+
+    def cleanup_sessions(self):
+        self.execute_update("DELETE FROM sessions WHERE expires_at < ?", (datetime.now(),))
+
 
     def list_users(self) -> List[Dict]:
         return self.execute_query("SELECT * FROM users")

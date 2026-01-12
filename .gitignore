@@ -97,6 +97,16 @@ releases/*/platforms/whatsapp/qr_code.png
 releases/*/platforms/whatsapp/bot.pid
 releases/*/platforms/whatsapp/bot.log
 
+# Release specific platform configs
+releases/*/platforms/telegram/config.txt
+releases/*/platforms/telegram/group_cache.json
+releases/*/platforms/telegram/selected_groups.json
+releases/*/platforms/telegram/stats.json
+releases/*/platforms/whatsapp/config.json
+releases/*/platforms/whatsapp/config.txt
+releases/*/platforms/whatsapp/login_status.json
+
+
 # OS
 .DS_Store
 Thumbs.db

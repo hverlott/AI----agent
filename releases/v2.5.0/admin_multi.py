@@ -36,7 +36,6 @@ except ImportError:
 # 页面配置
 st.set_page_config(
     page_title="SaaS AI System v2.5.0",
-    page_icon="🏷️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -54,247 +53,218 @@ else:
 # CSS 样式（现代化：ui-ux-pro-max 推荐配置 - SaaS Blue + Glassmorphism + Poppins）
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
     :root {
-        /* Palette: SaaS Trust Blue (ui-ux-pro-max) */
+        /* Palette: Clean SaaS (Mobile First) */
         --bg: #F8FAFC;
-        --panel: rgba(255, 255, 255, 0.85);
-        --panel-strong: #ffffff;
-        --text: #1E293B;
+        --panel: #FFFFFF;
+        --panel-strong: #FFFFFF;
+        --text: #0F172A;
         --muted: #64748B;
-        --accent: #2563EB; /* Trust Blue */
+        --accent: #2563EB; /* Primary Blue */
         --accent-hover: #1D4ED8;
-        --accent-2: #3B82F6; /* Secondary Blue */
-        --cta: #F97316; /* CTA Orange */
-        
+        --accent-light: #EFF6FF;
         --border: #E2E8F0;
-        --glass-border: 1px solid rgba(255, 255, 255, 0.5);
-        
         --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
         
-        --radius-sm: 8px;
-        --radius-md: 12px;
-        --radius-lg: 16px;
-        
-        --font-heading: 'Poppins', sans-serif;
-        --font-body: 'Open Sans', sans-serif;
+        --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     @media (prefers-color-scheme: dark) {
         :root {
-            --bg: #0F172A; /* Slate 900 */
-            --panel: rgba(30, 41, 59, 0.70);
-            --panel-strong: #1E293B;
-            --text: #F1F5F9;
+            --bg: #0F172A;
+            --panel: #1E293B;
+            --panel-strong: #334155;
+            --text: #F8FAFC;
             --muted: #94A3B8;
+            --accent: #3B82F6;
+            --accent-hover: #60A5FA;
+            --accent-light: rgba(59, 130, 246, 0.1);
             --border: #334155;
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
     }
 
     html, body, [class*="css"]  {
-        font-family: var(--font-body);
+        font-family: var(--font-main);
         color: var(--text);
+        font-size: 14px; /* Base size */
     }
     
     h1, h2, h3, h4, h5, h6, .topbar-title {
-        font-family: var(--font-heading);
+        font-family: var(--font-main);
         font-weight: 600;
         color: var(--text);
-        letter-spacing: -0.02em;
+        letter-spacing: -0.01em;
     }
 
     .stApp {
-        background:
-            radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.08), transparent 25%),
-            radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%),
-            var(--bg);
-        color: var(--text);
+        background-color: var(--bg);
+        background-image: none; /* Removed gradient for cleaner mobile look */
     }
 
-    #MainMenu, footer, header { visibility: hidden; }
-
+    /* Container Spacing */
     .block-container {
-        padding-top: 1.5rem;
+        padding-top: 1rem;
         padding-bottom: 3rem;
-        max-width: 1400px; /* Data-Dense layout */
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    @media (min-width: 768px) {
+        .block-container {
+            padding-top: 2rem;
+            max-width: 1200px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
     }
 
+    /* Sidebar */
     [data-testid="stSidebar"] {
-        background: var(--panel);
+        background-color: var(--panel);
         border-right: 1px solid var(--border);
-        backdrop-filter: blur(12px); /* Glassmorphism Spec */
     }
-    [data-testid="stSidebarUserContent"] {
-        padding-top: 20px;
-    }
-
-    .stMarkdown, .stMarkdown p {
-        color: var(--text);
-    }
-
+    
+    /* Top Bar - Mobile Optimized */
     .topbar {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 24px;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
         border-radius: var(--radius-lg);
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
-        box-shadow: var(--shadow-md);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 24px;
-        color: white;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 20px;
     }
+    @media (min-width: 768px) {
+        .topbar {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+        }
+    }
+    
     .topbar-title {
-        font-size: 1.75rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        color: #fff !important;
-        line-height: 1.2;
+        color: var(--text) !important;
         margin: 0;
-    }
-    .topbar-sub {
-        font-size: 0.95rem;
-        color: rgba(255,255,255,0.9);
-        font-weight: 400;
-        margin-top: 4px;
-    }
-    .topbar-meta .tag {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 0.35rem;
-        padding: 0.22rem 0.7rem;
+        gap: 8px;
+    }
+    
+    .topbar-user-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg);
+        padding: 6px 12px;
         border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.30);
-        background: rgba(255, 255, 255, 0.14);
-        color: rgba(255,255,255,0.92);
-        font-size: 0.78rem;
-        margin-left: 0.35rem;
-        white-space: nowrap;
+        border: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--text);
     }
 
+    /* Cards */
     .platform-card {
         background: var(--panel);
         border-radius: var(--radius-md);
         border: 1px solid var(--border);
         padding: 16px;
         margin-bottom: 12px;
-        box-shadow: var(--shadow-sm);
-        backdrop-filter: blur(12px);
-        transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        transition: all 0.2s ease;
     }
     .platform-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-        border-color: rgba(37, 99, 235, 0.45);
+        border-color: var(--accent);
+        box-shadow: var(--shadow-sm);
     }
     .platform-active {
-        border-color: rgba(37, 99, 235, 0.55);
-        background: linear-gradient(180deg, rgba(37, 99, 235, 0.12), transparent);
+        border-color: var(--accent);
+        background-color: var(--accent-light);
     }
 
+    /* Buttons */
     .stButton > button {
-        border-radius: 12px;
-        font-weight: 700;
+        border-radius: var(--radius-md);
+        font-weight: 500;
         border: 1px solid var(--border);
-        box-shadow: var(--shadow-sm);
-        transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+        height: auto;
+        padding: 0.5rem 1rem;
+        transition: all 0.2s;
     }
     .stButton > button:hover {
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-        border-color: rgba(37, 99, 235, 0.30);
+        border-color: var(--accent);
+        color: var(--accent);
+        background-color: var(--accent-light);
     }
-    .stButton > button:focus-visible {
-        outline: none;
-        box-shadow: var(--shadow-md), var(--ring);
-    }
-
-    [data-testid="stSidebar"] .stButton button {
-        width: 100%;
-        text-align: left;
-        justify-content: flex-start;
-        padding-left: 14px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text);
-        box-shadow: none;
-        font-weight: 650;
-    }
-    [data-testid="stSidebar"] .stButton button:hover {
-        background: rgba(148, 163, 184, 0.14);
-        box-shadow: none;
-        transform: none;
-    }
-    [data-testid="stSidebar"] .stButton button[kind="primary"] {
-        background: rgba(37, 99, 235, 0.14);
-        color: var(--text);
-        border: 1px solid rgba(37, 99, 235, 0.25);
-    }
-
+    
+    /* Inputs */
     .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-        border-radius: 12px;
+        border-radius: var(--radius-md);
         border: 1px solid var(--border);
-        background: var(--panel-strong);
-        color: var(--text);
-        box-shadow: var(--shadow-sm);
+        background-color: var(--panel);
+        min-height: 40px;
     }
-    .stTextInput input:focus, .stTextArea textarea:focus, .stSelectbox div[data-baseweb="select"]:focus-within {
-        border-color: rgba(37, 99, 235, 0.45);
-        box-shadow: var(--shadow-md), var(--ring);
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-light);
     }
 
+    /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0.45rem;
-        padding: 0.25rem;
-        border-radius: 999px;
-        background: rgba(148, 163, 184, 0.12);
-        border: 1px solid var(--border);
+        gap: 8px;
+        background: transparent;
+        border-bottom: 1px solid var(--border);
+        border-radius: 0;
+        padding: 0;
+        margin-bottom: 1rem;
     }
     .stTabs [data-baseweb="tab"] {
-        border-radius: 999px;
-        padding: 0.42rem 0.95rem;
-        color: var(--muted);
-        font-weight: 750;
-        border: 1px solid transparent;
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+        border: none;
         background: transparent;
-    }
-    .stTabs [data-baseweb="tab"]:hover {
-        background: rgba(148, 163, 184, 0.14);
-        color: var(--text);
+        color: var(--muted);
+        padding: 8px 16px;
+        font-weight: 500;
     }
     .stTabs [aria-selected="true"] {
-        background: var(--panel-strong);
-        border: 1px solid var(--border);
-        color: var(--text);
-        box-shadow: var(--shadow-sm);
+        color: var(--accent);
+        border-bottom: 2px solid var(--accent);
+        background: transparent;
     }
 
+    /* Metrics */
     [data-testid="stMetric"] {
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: var(--radius-md);
         padding: 16px;
-        box-shadow: var(--shadow-sm);
-        backdrop-filter: blur(12px);
-        transition: transform 160ms ease, box-shadow 160ms ease;
-    }
-    [data-testid="stMetric"]:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-    [data-testid="stMetric"] label {
-        color: var(--muted);
-        font-size: 0.86rem;
-        font-weight: 650;
     }
 
-    .status-running { background: rgba(16, 185, 129, 0.18); color: var(--text); border: 1px solid rgba(16, 185, 129, 0.35); padding: 6px 10px; border-radius: 12px; font-weight: 750; }
-    .status-stopped { background: rgba(244, 63, 94, 0.16); color: var(--text); border: 1px solid rgba(244, 63, 94, 0.32); padding: 6px 10px; border-radius: 12px; font-weight: 750; }
-    .status-pending { background: rgba(245, 158, 11, 0.18); color: var(--text); border: 1px solid rgba(245, 158, 11, 0.34); padding: 6px 10px; border-radius: 12px; font-weight: 750; }
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
+    .status-running { background: #DCFCE7; color: #166534; border-color: #BBF7D0; }
+    .status-stopped { background: #FEE2E2; color: #991B1B; border-color: #FECACA; }
+    .status-pending { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+
 
     .streamlit-expanderHeader {
         background: var(--panel);
@@ -1989,34 +1959,65 @@ def save_platform_config(platform, config):
         pass
 
 def render_top_bar():
-    """渲染顶部导航栏 (Win11 风格)"""
+    """渲染顶部导航栏 (Win11 风格 - Mobile Optimized)"""
     selected_platform = st.session_state.get('selected_platform', 'telegram')
     platform_info = PLATFORMS.get(selected_platform, {})
     title = platform_info.get('name', 'Dashboard')
     icon = platform_info.get('icon', '🏠')
     
-    tenant_id = st.session_state.get('tenant', 'default')
-    role = st.session_state.get('user_role', 'SuperAdmin')
+    sys_user = st.session_state.get("sys_user", {})
+    username = sys_user.get("username", "Guest")
+    role = st.session_state.get("user_role", "Unknown")
+    tenant_id = sys_user.get("tenant_id") or "Default"
     
-    # 顶部栏 HTML 结构
-    html = f"""
-    <div class="topbar">
-        <div class="topbar-left">
-            <div class="topbar-title">{icon} {title}</div>
-            <div class="topbar-sub">SaaS AI System v{APP_VERSION}</div>
-        </div>
-        <div class="topbar-meta">
-            <span class="tag">Tenant: {tenant_id}</span>
-            <span class="tag">Role: {role}</span>
-        </div>
-    </div>
-    """
-    st.markdown(html, unsafe_allow_html=True)
+    # Use columns to create a responsive top bar with functional elements
+    with st.container():
+        # Custom container style simulation via spacing
+        st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+        
+        # Responsive Layout: Title | User Info | Logout
+        # On mobile, this might stack or squish. 
+        # Using [3, 2, 1] ratio
+        c_title, c_info, c_action = st.columns([3, 2, 1])
+        
+        with c_title:
+            st.markdown(f"""
+            <div class="topbar-title" style="height: 100%; display: flex; align-items: center;">
+                {icon} {title}
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with c_info:
+            # Hide detailed info on very small screens if needed, but flex wrap handles it usually
+            st.markdown(f"""
+            <div style="display: flex; justify-content: flex-end; align-items: center; height: 100%; gap: 8px;">
+                <div class="topbar-user-pill">
+                    <span style="font-weight:600;">{username}</span>
+                    <span style="opacity:0.5;">|</span>
+                    <span style="font-size:0.8em;">{tenant_id}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with c_action:
+            if st.button("退出", key="top_bar_logout", use_container_width=True, help="退出登录"):
+                # Call logout function (needs to be available in scope or imported)
+                # Since this function is defined early, we might need to import or move _logout_system_user
+                # Or just set a flag in session state and handle it in main loop
+                st.session_state.logout_requested = True
+                st.rerun()
+
+        st.markdown('<div style="margin-bottom: 20px; border-bottom: 1px solid var(--border);"></div>', unsafe_allow_html=True)
 
 def render_platform_selector():
     st.sidebar.markdown(f"### 🌐 {tr('nav_platform')}")
+    
+    # 搜索框 (Search)
+    search_query = st.sidebar.text_input("Search", placeholder="🔍 搜索...", label_visibility="collapsed", key="sidebar_search").lower().strip()
+    
     selected_platform = st.session_state.get('selected_platform', 'telegram')
     current_role = st.session_state.get('user_role', 'SuperAdmin')
+    
     groups = [
         ("🤖 AI 配置中心", ["ai_config", "orchestrator", "supervisor", "skills", "ai_learning"]),
         ("📱 平台配置", ["telegram", "whatsapp", "facebook", "messenger", "wechat", "instagram", "twitter", "discord"]),
@@ -2025,6 +2026,9 @@ def render_platform_selector():
         ("🛠️ 系统管理", ["system_admin", "sys_config", "api_gateway", "system_status", "test_cases"]),
         ("🆘 文档与帮助", ["help_center"])
     ]
+    
+    found_any = False
+    
     for g_title, g_items in groups:
         visible_items = []
         for platform_id in g_items:
@@ -2034,25 +2038,51 @@ def render_platform_selector():
             roles = info.get("roles")
             if roles and current_role not in roles:
                 continue
+                
+            # Filter by search
+            tr_name = tr(f"plat_{platform_id}")
+            if tr_name == f"plat_{platform_id}":
+                tr_name = info['name']
+                
+            if search_query:
+                # Search in name, id, or group title
+                if (search_query not in tr_name.lower() and 
+                    search_query not in platform_id.lower() and 
+                    search_query not in g_title.lower()):
+                    continue
+
             visible_items.append(platform_id)
+            
         if not visible_items:
             continue
-        with st.sidebar.expander(g_title, expanded=selected_platform in g_items):
+            
+        found_any = True
+        
+        # Auto-expand if searching or if active item is inside
+        is_expanded = (search_query != "") or (selected_platform in g_items)
+        
+        with st.sidebar.expander(g_title, expanded=is_expanded):
             for platform_id in visible_items:
                 if platform_id not in PLATFORMS:
                     continue
                 info = PLATFORMS[platform_id]
+                
+                # Double check roles (already checked above but safe to keep)
                 roles = info.get('roles')
                 if roles and current_role not in roles:
                     continue
+                    
                 icon = info.get('icon', '')
                 tr_name = tr(f"plat_{platform_id}")
                 if tr_name == f"plat_{platform_id}":
                     tr_name = info['name']
                 status = info.get('status')
-                dot = "🟢" if status == "available" else ("🟡" if status == "coming_soon" else "🔴")
-                label = f"{icon} {tr_name} {dot}"
+                
+                # Simplified Label
+                label = f"{icon} {tr_name}"
+                
                 is_selected = (selected_platform == platform_id)
+                
                 if st.button(
                     label,
                     key=f"select_{platform_id}",
@@ -2062,7 +2092,8 @@ def render_platform_selector():
                 ):
                     st.session_state.selected_platform = platform_id
                     st.rerun()
-            # 在“文档与帮助”子菜单中插入“文档与目录”选项，位置在全局“系统信息”之前
+                    
+            # Doc selector logic (preserved)
             if g_title.startswith("🆘 文档与帮助") and selected_platform == "help_center":
                 docs_root = os.path.join(BASE_DIR, "docs", "help_center", "v1.0")
                 lang = st.session_state.get("lang", "zh")
@@ -2075,6 +2106,10 @@ def render_platform_selector():
                     files.sort()
                     st.markdown("#### 📚 文档与目录")
                     st.radio("选择文档", files, format_func=lambda x: x.replace(".md", "").title(), key="doc_selector")
+                    
+    if not found_any and search_query:
+        st.sidebar.caption("❌ 未找到相关功能")
+        
     return selected_platform
 
 KB_DIR = os.path.join(DATA_DIR, "knowledge_base")
@@ -6097,9 +6132,12 @@ def start_whatsapp_bot():
         env = os.environ.copy()
         env['TENANT_ID'] = tenant_id
         
+        # Try to locate 'node' executable
+        node_cmd = shutil.which("node") or "node"
+
         if sys.platform == 'win32':
             process = subprocess.Popen(
-                ['node', 'bot.js'],
+                [node_cmd, 'bot.js'],
                 cwd=whatsapp_dir,
                 env=env, # 注入环境变量
                 stdout=log_handle,
@@ -6110,7 +6148,7 @@ def start_whatsapp_bot():
             )
         else:
             process = subprocess.Popen(
-                ['node', 'bot.js'],
+                [node_cmd, 'bot.js'],
                 cwd=whatsapp_dir,
                 env=env, # 注入环境变量
                 stdout=log_handle,
@@ -7154,6 +7192,18 @@ def _normalize_role(db_role: str) -> str:
     return "BusinessAdmin"
 
 def _logout_system_user():
+    # Revoke token if exists
+    try:
+        token = st.query_params.get("token")
+        if token and "auth" in st.session_state:
+            st.session_state.auth.revoke_session_token(token)
+    except Exception:
+        pass
+        
+    # Clear query params
+    if "token" in st.query_params:
+        del st.query_params["token"]
+
     for k in ["sys_user", "sys_logged_in", "user_role", "tenant"]:
         if k in st.session_state:
             del st.session_state[k]
@@ -7166,7 +7216,7 @@ def _render_system_login():
 
     st.markdown("""
     <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="font-family: 'Segoe UI', sans-serif; color: #0078d4;">👑 SaaS AI System</h1>
+        <h1 style="font-family: 'Segoe UI', sans-serif; color: #0078d4;">SaaS AI System</h1>
         <p style="color: #606060;">Enterprise Management Console</p>
     </div>
     """, unsafe_allow_html=True)
@@ -7190,6 +7240,14 @@ def _render_system_login():
             st.session_state.sys_user = user
             st.session_state.sys_logged_in = True
             st.session_state.user_role = role
+            
+            # Persistent Session (Token)
+            try:
+                token = st.session_state.auth.create_session_token(user['id'])
+                st.query_params["token"] = token
+            except Exception as e:
+                print(f"Session creation failed: {e}")
+
             if role == "BusinessAdmin":
                 st.session_state.tenant = user.get("tenant_id")
             else:
@@ -7198,6 +7256,27 @@ def _render_system_login():
             st.rerun()
 
 def _require_system_login():
+    _ensure_auth_manager()
+    
+    # Try to restore session if not logged in
+    if not st.session_state.get("sys_logged_in"):
+        try:
+            token = st.query_params.get("token")
+            if token:
+                user = st.session_state.auth.validate_session_token(token)
+                if user:
+                    role = _normalize_role(user.get("role"))
+                    st.session_state.sys_user = user
+                    st.session_state.sys_logged_in = True
+                    st.session_state.user_role = role
+                    if role == "BusinessAdmin":
+                        st.session_state.tenant = user.get("tenant_id")
+                    else:
+                        if "tenant" not in st.session_state:
+                            st.session_state.tenant = "default"
+        except Exception:
+            pass
+
     if not st.session_state.get("sys_logged_in"):
         _render_system_login()
         st.stop()
@@ -7378,6 +7457,11 @@ def main():
     if 'show_login_panel' not in st.session_state:
         st.session_state.show_login_panel = False
     _require_system_login()
+    
+    # Check for logout request from top bar
+    if st.session_state.get("logout_requested"):
+        st.session_state.logout_requested = False
+        _logout_system_user()
 
     if 'lang' not in st.session_state:
         st.session_state.lang = 'zh'
@@ -7387,14 +7471,15 @@ def main():
         st.session_state.timezone = "Asia/Shanghai"
 
     render_top_bar()
-
+    
     sys_user = st.session_state.get("sys_user") or {}
+    
     st.sidebar.markdown("### 👤 当前登录")
     st.sidebar.caption(f"账号: {sys_user.get('username', '-')}")
     st.sidebar.caption(f"角色: {st.session_state.get('user_role', '-')}")
     if sys_user.get("tenant_id"):
         st.sidebar.caption(f"租户: {sys_user.get('tenant_id')}")
-    if st.sidebar.button("退出登录", use_container_width=True):
+    if st.sidebar.button("退出登录", use_container_width=True, key="logout_sidebar"):
         _logout_system_user()
 
     # st.sidebar.markdown("### 👤 身份切换")
