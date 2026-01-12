@@ -38,13 +38,13 @@ except ImportError:
 website_title = db.get_system_config("website_title", "SaaS AI System v2.5.1")
 
 # Force update title if it's the old default
-    current_title = db.get_system_config("website_title", "SaaS AI System v2.5.1")
-    if "v2.5.0" in current_title:
-        db.set_system_config("website_title", "SaaS AI System v2.5.1")
-        current_title = "SaaS AI System v2.5.1"
+current_title = db.get_system_config("website_title", "SaaS AI System v2.5.1")
+if "v2.5.0" in current_title:
+    db.set_system_config("website_title", "SaaS AI System v2.5.1")
+    current_title = "SaaS AI System v2.5.1"
 
-    st.set_page_config(
-        page_title=current_title,
+st.set_page_config(
+    page_title=current_title,
     layout="wide",
     initial_sidebar_state="expanded"
 )
