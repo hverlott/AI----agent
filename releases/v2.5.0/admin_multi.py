@@ -6936,53 +6936,65 @@ def render_help_center():
     selected_doc = st.selectbox("📚 选择文档", files, key=f"hc_sel_{lang}") if files else None
 
     if selected_doc:
-        with st.expander(f"📖 {selected_doc}", expanded=True):
-            file_path = os.path.join(current_dir, selected_doc)
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-                
-            # Split content to find mermaid blocks
-            parts = content.split("```mermaid")
-            
-            for i, part in enumerate(parts):
-                if i == 0:
-                    st.markdown(part)
+        try:
+            with st.expander(f"📖 {selected_doc}", expanded=True):
+                file_path = os.path.join(current_dir, selected_doc)
+                if not os.path.exists(file_path):
+                    st.error(f"文件不存在: {file_path}")
                 else:
-                    # This part starts with mermaid code, ends with ``` and then text
-                    subparts = part.split("```", 1)
-                    mermaid_code = subparts[0]
-                    remaining_text = subparts[1] if len(subparts) > 1 else ""
+                    with open(file_path, "r", encoding="utf-8", errors='replace') as f:
+                        content = f.read()
                     
-                    # Render Mermaid using custom iframe to avoid Streamlit's default feature policy warnings
-                    import base64
-                    html_content = f"""
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                    <meta charset="utf-8">
-                    <style>
-                    body {{ margin: 0; background: white; }}
-                    .mermaid {{ padding: 10px; border-radius: 5px; overflow: auto; }}
-                    </style>
-                    </head>
-                    <body>
-                    <div class="mermaid">
-                    {mermaid_code}
-                    </div>
-                    <script type="module">
-                    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-                    mermaid.initialize({{ startOnLoad: true }});
-                    </script>
-                    </body>
-                    </html>
-                    """
-                    b64 = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
-                    st.markdown(
-                        f'<iframe src="data:text/html;base64,{b64}" width="100%" height="600" frameborder="0" style="background: white; border-radius: 5px;"></iframe>', 
-                        unsafe_allow_html=True
-                    )
-                    
-                    st.markdown(remaining_text)
+                    if not content.strip():
+                        st.info("(文档内容为空)")
+                    else:
+                        # Split content to find mermaid blocks
+                        parts = content.split("```mermaid")
+                        
+                        for i, part in enumerate(parts):
+                            if i == 0:
+                                st.markdown(part, unsafe_allow_html=True)
+                            else:
+                                # This part starts with mermaid code, ends with ``` and then text
+                                subparts = part.split("```", 1)
+                                mermaid_code = subparts[0]
+                                remaining_text = subparts[1] if len(subparts) > 1 else ""
+                                
+                                # Render Mermaid using custom iframe to avoid Streamlit's default feature policy warnings
+                                import base64
+                                html_content = f"""
+                                <!DOCTYPE html>
+                                <html>
+                                <head>
+                                <meta charset="utf-8">
+                                <style>
+                                body {{ margin: 0; background: white; }}
+                                .mermaid {{ padding: 10px; border-radius: 5px; overflow: auto; }}
+                                </style>
+                                </head>
+                                <body>
+                                <div class="mermaid">
+                                {mermaid_code}
+                                </div>
+                                <script type="module">
+                                import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+                                mermaid.initialize({{ startOnLoad: true }});
+                                </script>
+                                </body>
+                                </html>
+                                """
+                                b64 = base64.b64encode(html_content.encode("utf-8")).decode("utf-8")
+                                st.markdown(
+                                    f'<iframe src="data:text/html;base64,{b64}" width="100%" height="600" frameborder="0" style="background: white; border-radius: 5px;"></iframe>', 
+                                    unsafe_allow_html=True
+                                )
+                                
+                                if remaining_text.strip():
+                                    st.markdown(remaining_text, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"文档渲染错误: {e}")
+            # import traceback
+            # st.code(traceback.format_exc())
 
 def render_test_cases_panel():
     st.header("🧪 测试用例集")
