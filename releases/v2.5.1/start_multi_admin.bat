@@ -39,9 +39,9 @@ if exist ".\.venv313\Scripts\python.exe" (
 
 REM Check and Install Dependencies
 echo Checking dependencies...
-"%PYTHON_EXE%" -c "import streamlit, pypdf, docx, openpyxl" >nul 2>&1
+"%PYTHON_EXE%" -c "import streamlit, pypdf, docx, openpyxl, telethon, watchdog" >nul 2>&1
 if errorlevel 1 (
-    echo Missing deps detected: streamlit pypdf docx openpyxl. Installing...
+    echo Missing deps detected: streamlit pypdf docx openpyxl telethon watchdog. Installing...
     "%PYTHON_EXE%" -m pip install -r requirements.txt
     if errorlevel 1 (
         echo Dependency install failed. Please check network or run install.bat

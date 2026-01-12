@@ -3941,6 +3941,13 @@ def render_accounts_panel():
                         "refresh_minutes": int(refresh), 
                         "updated_at": datetime.now().isoformat()
                     }
+                    # Auto-assign session file for Telegram if not present
+                    if platform == "Telegram":
+                        # Clean username for filename
+                        safe_user = "".join([c for c in username if c.isalnum() or c in ('-', '_')]).strip()
+                        if not safe_user: safe_user = "unnamed"
+                        item["session_file"] = f"{safe_user}.session"
+
                     found = False
                     for i, a in enumerate(db["accounts"]):
                         if a["platform"] == platform and a["username"] == username:

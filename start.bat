@@ -14,7 +14,7 @@ if not exist "%SAAS_ROOT%releases\%LATEST_VERSION%" (
 
 cd /d "%SAAS_ROOT%releases\%LATEST_VERSION%"
 if exist "start_multi_admin.bat" (
-    call start_multi_admin.bat
+    call start_multi_admin.bat %*
 ) else (
     echo Error: start_multi_admin.bat not found in version folder.
     pause
