@@ -86,8 +86,10 @@ platforms/telegram/extra_kb.txt
 platforms/telegram/qa.txt
 
 # Release specific ignores (apply recursively)
-releases/*/data/tenants/
-releases/*/data/backups/
+releases/*/data/tenants/*
+!releases/*/data/tenants/.gitkeep
+releases/*/data/backups/*
+!releases/*/data/backups/.gitkeep
 releases/*/platforms/whatsapp/sessions/
 releases/*/platforms/whatsapp/node_modules/
 releases/*/platforms/whatsapp/stats.json

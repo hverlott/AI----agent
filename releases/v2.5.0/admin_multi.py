@@ -3922,14 +3922,14 @@ def render_accounts_panel():
                         if not found:
                             db["accounts"].append(item)
                         count += 1
-                
-                # Save DB
-                with open(db_path, "w", encoding="utf-8") as f:
-                    json.dump(db, f, ensure_ascii=False, indent=2)
-                
-                log_admin_op("accounts_import", {"count": count, "tenant": tenant})
-                st.success(f"成功导入 {count} 个账号！")
-                st.rerun()
+                    
+                    # Save DB
+                    with open(db_path, "w", encoding="utf-8") as f:
+                        json.dump(db, f, ensure_ascii=False, indent=2)
+                    
+                    log_admin_op("accounts_import", {"count": count, "tenant": tenant})
+                    st.success(f"成功导入 {count} 个账号！")
+                    st.rerun()
 
         with sub_tabs[2]:
             st.markdown(tr("acc_list_title"))
