@@ -1,7 +1,7 @@
 # API 网关管理 (API Gateway)
 
-Version: 1.0  
-Last Updated: 2026-01-07
+Version: 2.5.0  
+Last Updated: 2026-01-12
 
 ## 1. 功能用途
 统一管理对外 API 路由与权限策略，支持 Path/Method/Auth/Rate Limit 配置，便于集成第三方系统并确保安全。

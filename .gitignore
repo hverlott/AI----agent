@@ -86,6 +86,8 @@ platforms/telegram/extra_kb.txt
 platforms/telegram/qa.txt
 
 # Release specific ignores (apply recursively)
+releases/*/data/
+!releases/*/data/.gitkeep
 releases/*/data/tenants/*
 !releases/*/data/tenants/.gitkeep
 releases/*/data/backups/*

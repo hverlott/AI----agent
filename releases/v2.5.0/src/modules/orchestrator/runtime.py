@@ -202,8 +202,8 @@ class StageAgentRuntime:
             }
         except Exception:
             return {
-                "base_url": os.getenv("AI_BASE_URL"),
-                "model": os.getenv("AI_MODEL_NAME"),
+                "base_url": os.getenv("AI_BASE_URL") or "https://api.openai.com/v1",
+                "model": os.getenv("AI_MODEL_NAME") or "gpt-4o-mini",
                 "timeout": 15
             }
     async def generate(self, state: Dict, recent_dialog: List[Dict], kb_items: List[Dict], ai_client=None, model_name: str = None, system_prompt: str = None, temperature: float = 0.7) -> Dict:

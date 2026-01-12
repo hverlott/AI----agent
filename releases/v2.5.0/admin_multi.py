@@ -1544,25 +1544,21 @@ def get_tenant_path(rel_path, tenant_id=None):
     """获取租户文件路径"""
     if tenant_id is None:
         tenant_id = st.session_state.get("tenant", "default")
-    
-    if tenant_id == "default":
-        # 兼容旧路径
-        return os.path.join(BASE_DIR, rel_path)
-    else:
-        return os.path.join(BASE_DIR, "data", "tenants", tenant_id, rel_path)
+    return os.path.join(str(DATA_DIR), "tenants", tenant_id, rel_path)
 
 def read_tenant_file(rel_path, default=""):
     """读取租户文件"""
-    path = get_tenant_path(rel_path)
+    tenant_id = st.session_state.get("tenant", "default")
+    path = get_tenant_path(rel_path, tenant_id=tenant_id)
     try:
         if not os.path.exists(path):
             # 尝试回退到默认租户或根目录查找（如果是读取模板等）
-            if not rel_path.startswith("data/"):
-                 fallback = os.path.join(BASE_DIR, rel_path)
-                 if os.path.exists(fallback):
-                     path = fallback
-                 else:
-                     return default
+            if tenant_id == "default" and (not rel_path.startswith("data/")):
+                fallback = os.path.join(BASE_DIR, rel_path)
+                if os.path.exists(fallback):
+                    path = fallback
+                else:
+                    return default
             else:
                 return default
 
@@ -2517,7 +2513,7 @@ def render_tenant_login_panel(tenant_id, session_name):
     if not session_name.endswith(".session"):
         session_name += ".session"
     
-    session_dir = f"data/tenants/{tenant_id}/sessions"
+    session_dir = os.path.join(str(DATA_DIR), "tenants", tenant_id, "sessions")
     os.makedirs(session_dir, exist_ok=True)
     session_path = os.path.join(session_dir, session_name)
     
@@ -2606,7 +2602,7 @@ def render_tenant_login_panel(tenant_id, session_name):
                             st.session_state.show_login_panel = False
                             
                             # 尝试自动更新数据库中的用户名
-                            acc_db_path = f"data/tenants/{tenant_id}/accounts.json"
+                            acc_db_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "accounts.json")
                             if os.path.exists(acc_db_path):
                                 try:
                                     with open(acc_db_path, "r", encoding="utf-8") as f:
@@ -2641,7 +2637,7 @@ def render_telegram_panel():
     
     # --- 账号选择器 ---
     import json
-    acc_db_path = f"data/tenants/{tenant_id}/accounts.json"
+    acc_db_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "accounts.json")
     tg_accounts = []
     if os.path.exists(acc_db_path):
         try:
@@ -2652,7 +2648,7 @@ def render_telegram_panel():
             pass
     
     # --- API Config 选择器 ---
-    api_db_path = f"data/tenants/{tenant_id}/api_configs.json"
+    api_db_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "api_configs.json")
     api_configs = []
     if os.path.exists(api_db_path):
         try:
@@ -2664,7 +2660,7 @@ def render_telegram_panel():
             
     # 加载当前生效的 API ID (用于默认选中)
     active_api_id = None
-    t_conf_dir = f"data/tenants/{tenant_id}/platforms/telegram"
+    t_conf_dir = os.path.join(str(DATA_DIR), "tenants", tenant_id, "platforms", "telegram")
     active_cfg_path = os.path.join(t_conf_dir, "config.json")
     if os.path.exists(active_cfg_path):
         try:
@@ -2759,7 +2755,7 @@ def render_telegram_panel():
         
         with col2:
             # 检查租户专属 Session (基于选择的账号)
-            session_file_path = f"data/tenants/{tenant_id}/sessions/{selected_session_file}"
+            session_file_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "sessions", selected_session_file)
             if tenant_id == 'default' and not os.path.exists(session_file_path) and os.path.exists(selected_session_file):
                  session_file_path = selected_session_file
                  
@@ -2805,7 +2801,7 @@ def render_telegram_panel():
         with col3:
             # API 密钥配置状态检查 (已移除，移至【业务管理-账号管理】)
             
-            config_path = f"data/tenants/{tenant_id}/platforms/telegram/config.txt"
+            config_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "platforms", "telegram", "config.txt")
             config_exists = os.path.exists(config_path) or (tenant_id == 'default' and os.path.exists("platforms/telegram/config.txt"))
             if config_exists:
                 st.success(tr('tg_config_success'))
@@ -2894,8 +2890,7 @@ def render_telegram_config():
     tenant_id = st.session_state.get('tenant', 'default')
     
     def get_tenant_path(rel_path):
-        # 优先使用租户目录
-        return f"data/tenants/{tenant_id}/{rel_path}"
+        return os.path.join(str(DATA_DIR), "tenants", tenant_id, rel_path)
 
     def read_tenant_file(rel_path, default=""):
         # 1. 尝试租户目录
@@ -2909,9 +2904,10 @@ def render_telegram_config():
         
         # 2. 如果是 default 租户，尝试根目录下的旧路径（兼容性）
         if tenant_id == 'default':
-            if os.path.exists(rel_path):
+            fallback = os.path.join(BASE_DIR, rel_path)
+            if os.path.exists(fallback):
                 try:
-                    with open(rel_path, "r", encoding="utf-8") as f:
+                    with open(fallback, "r", encoding="utf-8") as f:
                         return f.read()
                 except:
                     pass
@@ -3452,7 +3448,7 @@ AUDIT_GUIDE_STRENGTH={guide_strength:.1f}
 # ==================== 租户级工具函数 ====================
 def _get_tenant_tg_paths(tenant_id):
     """获取租户 Telegram 相关路径"""
-    base = f"data/tenants/{tenant_id}/platforms/telegram"
+    base = os.path.join(str(DATA_DIR), "tenants", tenant_id, "platforms", "telegram")
     return {
         "group_cache": os.path.join(base, "group_cache.json"),
         "selected_groups": os.path.join(base, "selected_groups.json"),
@@ -7057,12 +7053,64 @@ def render_help_center():
                     if not content.strip():
                         st.info("(文档内容为空)")
                     else:
+                        def _switch_doc(target: str):
+                            t = os.path.basename(target or "")
+                            if not t.endswith(".md"):
+                                return
+                            if t not in files:
+                                return
+                            st.session_state["doc_selector"] = t
+                            st.session_state[f"hc_sel_{lang}"] = t
+                            st.rerun()
+
+                        def _render_text_block(text: str):
+                            import re
+                            lines = (text or "").splitlines()
+                            link_pat = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+                            for li, line in enumerate(lines):
+                                m = re.match(r"^\s*-\s*\*\*\[([^\]]+)\]\(([^)]+\.md)\)\*\*\s*:?\s*(.*)$", line)
+                                if m:
+                                    label = m.group(1).strip()
+                                    target = m.group(2).strip()
+                                    suffix = (m.group(3) or "").strip()
+                                    c1, c2 = st.columns([2, 5])
+                                    with c1:
+                                        if st.button(label, key=f"hc_idx_{selected_doc}_{li}_{os.path.basename(target)}", use_container_width=True):
+                                            _switch_doc(target)
+                                    with c2:
+                                        if suffix:
+                                            st.markdown(suffix, unsafe_allow_html=True)
+                                    continue
+
+                                links = list(link_pat.finditer(line or ""))
+                                internal = []
+                                for mm in links:
+                                    t = os.path.basename(mm.group(2) or "")
+                                    if t.endswith(".md") and t in files:
+                                        internal.append((mm, t))
+                                if not internal:
+                                    st.markdown(line, unsafe_allow_html=True)
+                                    continue
+
+                                pos = 0
+                                for j, (mm, t) in enumerate(internal):
+                                    pre = (line[pos:mm.start()] or "").strip()
+                                    if pre:
+                                        st.markdown(pre, unsafe_allow_html=True)
+                                    label = (mm.group(1) or t).strip()
+                                    if st.button(label, key=f"hc_link_{selected_doc}_{li}_{j}_{t}"):
+                                        _switch_doc(t)
+                                    pos = mm.end()
+                                tail = (line[pos:] or "").strip()
+                                if tail:
+                                    st.markdown(tail, unsafe_allow_html=True)
+
                         # Split content to find mermaid blocks
                         parts = content.split("```mermaid")
                         
                         for i, part in enumerate(parts):
                             if i == 0:
-                                st.markdown(part, unsafe_allow_html=True)
+                                _render_text_block(part)
                             else:
                                 # This part starts with mermaid code, ends with ``` and then text
                                 subparts = part.split("```", 1)
@@ -7099,7 +7147,7 @@ def render_help_center():
                                 )
                                 
                                 if remaining_text.strip():
-                                    st.markdown(remaining_text, unsafe_allow_html=True)
+                                    _render_text_block(remaining_text)
         except Exception as e:
             st.error(f"文档渲染错误: {e}")
             # import traceback

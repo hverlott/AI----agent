@@ -6,9 +6,9 @@
 graph TD
     Admin[管理后台 Streamlit<br/>admin_multi.py/admin.py] -->|配置/操作| TG[Telegram Bot<br/>main.py/Telethon]
     Admin -->|配置/操作| WA[WhatsApp Bot<br/>platforms/whatsapp/bot.js]
-    TG -->|读取/写入| CFG[(配置与话术<br/>prompt.txt/keywords.txt/config.txt/qa.txt)]
-    TG --> LOGS[(日志<br/>platforms/telegram/logs/*)]
-    TG --> STATS[(统计<br/>platforms/telegram/stats.json)]
+    TG -->|读取/写入| CFG[(配置与话术<br/>data/tenants/{tenant}/platforms/telegram/*)]
+    TG --> LOGS[(日志<br/>data/tenants/{tenant}/platforms/telegram/logs/*)]
+    TG --> STATS[(统计<br/>data/tenants/{tenant}/platforms/telegram/stats.json)]
     TG --> KB[(知识库<br/>data/knowledge_base/db.json + files/)]
     TG -->|AI请求| API[(OpenAI兼容 API)]
     WA -->|AI请求| API
@@ -23,35 +23,47 @@ graph TD
 sequenceDiagram
     participant U as 用户
     participant TG as Telethon
-    participant H as handler(main.py)
-    participant QA as QA匹配
-    participant Orch as 编排/监管
-    participant KB as 知识库检索
-    participant AI as AI API
+    participant H as handlers.py
+    participant CFG as ConfigManager
+    participant QA as qa.txt
+    participant KB as KBEngine
+    participant Sup as Supervisor
+    participant AI as AIClientManager
+    participant Aud as AuditManager
     participant L as 日志/统计
     
     U->>TG: 发送消息
     TG->>H: NewMessage 事件
+    H->>CFG: 读取开关/人设/关键词
     H->>H: 开关/白名单/触发检查
     
     alt 触发满足
-        H->>QA: 解析 qa.txt 并尝试匹配
+        H->>QA: 解析并尝试匹配
         alt QA 命中
-            QA-->>H: 直接回复
-            H->>L: 记录 trace: QA_HIT
-            H->>TG: 发送 QA 回复
+            QA-->>H: 回复文本
+            H->>TG: 发送回复
         else 未命中
-            alt 编排开启 (Supervisor)
-                H->>Orch: 状态加载与决策
-                Orch->>KB: 检索上下文
-                Orch->>AI: Agent 生成 (Stage/Persona)
-                AI-->>H: 返回回复
-            else 默认模式
-                H->>KB: 检索 Top-2 条目
-                H->>AI: 注入知识库上下文并调用
-                AI-->>H: 返回回复
+            alt KB_ONLY_REPLY=on
+                H->>KB: 检索 Top-N
+                KB-->>H: 返回命中内容
+                H->>TG: 发送回复
+            else KB_ONLY_REPLY=off
+                alt CONV_ORCHESTRATION=on
+                    H->>Sup: 状态加载与决策
+                    Sup->>KB: 检索上下文（可选）
+                    Sup->>AI: 生成草稿（Stage/Persona）
+                    AI-->>Sup: 草稿
+                    Sup-->>H: 候选回复
+                else 默认 RAG
+                    H->>KB: 检索 Top-N
+                    KB-->>H: 返回上下文
+                    H->>AI: 注入上下文并生成
+                    AI-->>H: 草稿
+                end
+                H->>Aud: 内容审核与兜底
+                Aud-->>H: 最终回复/兜底
+                H->>TG: 发送回复
             end
-            H->>TG: 发送 AI 回复
         end
         H->>L: 写入日志、更新统计
     else 触发不满足

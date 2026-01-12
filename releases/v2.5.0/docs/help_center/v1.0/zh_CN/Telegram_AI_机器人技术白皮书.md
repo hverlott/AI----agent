@@ -98,31 +98,48 @@ sequenceDiagram
 
 系统对每一条消息进行毫秒级的多维度处理。根据配置模式不同，分为 **RAG 问答模式** 和 **SOP 编排模式**。
 
-#### 3.2.1 模式 A: RAG 知识库问答 (Standard RAG Flow)
-适用于通用的客服问答场景，基于知识库进行检索增强生成。
+#### 3.2.1 模式 A: RAG 知识库问答与 AI 对话 (RAG & AI Flow)
+适用于通用的客服问答场景，系统优先检索知识库，若无相关文档则回退到纯 AI 模式。
 
 ```mermaid
 sequenceDiagram
     participant U as 用户 (User)
-    participant SYS as 系统核心 (Main Loop)
-    participant KB as 知识库 (RAG)
-    participant LLM as 大模型 (AI)
-    participant DB as 数据库 (DB)
+    participant TG as Telethon
+    participant H as Telegram 处理器 (handlers.py)
+    participant CFG as 配置加载 (ConfigManager)
+    participant QA as QA 匹配 (qa.txt)
+    participant KB as 知识库检索 (KBEngine)
+    participant AI as 大模型调用 (AIClientManager)
+    participant AUD as 审计 (AuditManager)
+    participant DB as 日志/统计/审计库 (SQLite)
 
-    U->>SYS: 发送消息
-    SYS->>SYS: 权限与意图识别
+    U->>TG: 发送消息
+    TG->>H: NewMessage 事件
+    H->>CFG: 读取开关/人设/关键词
     
     alt 触发回复
-        SYS->>KB: 语义检索 (Top-K)
-        KB-->>SYS: 返回相关文档
+        H->>QA: 解析并尝试匹配
+        alt QA 命中
+            QA-->>H: 直接回复
+            H->>TG: 发送回复
+        else QA 未命中
+            H->>KB: 检索 Top-N
+            KB-->>H: 返回命中内容/摘要
         
-        SYS->>LLM: 构建 Prompt (System + KB + History)
-        LLM-->>SYS: 生成回复
+            alt 命中足够 (RAG Mode)
+                H->>AI: 构建 Prompt (System + Docs + History)
+            else 命中不足 (Pure AI Mode)
+                H->>AI: 构建 Prompt (System + History)
+            end
         
-        SYS->>U: 发送回复
-        SYS->>DB: 记录日志
+            AI-->>H: 生成草稿
+            H->>AUD: 内容审核与兜底
+            AUD-->>H: 最终回复/兜底
+            H->>TG: 发送回复
+        end
+        H->>DB: 记录日志与统计
     else 不触发
-        SYS-->>U: (静默)
+        H-->>TG: (静默)
     end
 ```
 
@@ -132,25 +149,36 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant U as 用户 (User)
-    participant SYS as 系统核心
-    participant STATE as 状态管理器 (Redis)
+    participant TG as Telethon
+    participant H as Telegram 处理器 (handlers.py)
+    participant STATE as 会话状态 (ConversationStateManager/SQLite)
     participant SUP as Supervisor (决策者)
-    participant WORK as Worker (执行者)
+    participant STAGE as Stage Agent (阶段执行器)
+    participant KB as 知识库 (KBEngine)
+    participant AI as 大模型 (AIClientManager)
+    participant AUD as 审计 (AuditManager)
 
-    U->>SYS: 发送消息
-    SYS->>STATE: 获取当前会话状态 (Stage/Persona)
+    U->>TG: 发送消息
+    TG->>H: NewMessage 事件
+    H->>STATE: 获取当前会话状态 (Stage/Persona)
     
-    SYS->>SUP: 分析意图与下一阶段 (Decide)
-    SUP-->>SYS: 决策结果 (Next Stage, Handoff?)
+    H->>SUP: 分析意图与下一阶段 (Decide)
+    SUP-->>H: 决策结果 (Next Stage, Handoff?)
     
-    SYS->>STATE: 更新状态
+    H->>STATE: 更新状态
     
     alt 需要转人工
-        SYS-->>U: 发送转接提示
+        H-->>TG: 发送转接提示
     else AI 继续跟进
-        SYS->>WORK: 生成话术 (基于当前 Stage Prompt + KB)
-        WORK-->>SYS: 生成回复
-        SYS-->>U: 发送回复
+        H->>KB: 检索上下文（可选）
+        KB-->>H: 返回命中内容/摘要
+        H->>STAGE: 生成话术 (Stage Prompt + KB + History)
+        STAGE->>AI: 调用大模型
+        AI-->>STAGE: 生成草稿
+        STAGE-->>H: 候选回复
+        H->>AUD: 内容审核与兜底
+        AUD-->>H: 最终回复/兜底
+        H-->>TG: 发送回复
     end
 ```
 

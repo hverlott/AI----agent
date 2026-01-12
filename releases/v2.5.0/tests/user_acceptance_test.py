@@ -12,7 +12,7 @@ from unittest.mock import MagicMock
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from openai import AsyncOpenAI
 import httpx
 
@@ -23,7 +23,9 @@ from src.modules.orchestrator.runtime import StageAgentRuntime
 from src.modules.audit.manager import AuditManager
 
 # --- Configuration & Mocking ---
-load_dotenv()
+_env_path = find_dotenv(usecwd=True)
+if _env_path:
+    load_dotenv(_env_path)
 
 # Setup simple logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
