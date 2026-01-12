@@ -5,9 +5,22 @@ import sys
 # Auto-redirect to v2.5.1
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # current_dir is .../releases/v2.5.0
+# Fix: Ensure we correctly navigate up from v2.5.0 to releases then down to v2.5.1
+# Using resolve() to handle potential symlinks or relative path weirdness
 target_dir = os.path.abspath(os.path.join(current_dir, "..", "v2.5.1"))
-# target_dir is .../releases/v2.5.1
 
+# Fallback mechanism if the path construction fails (e.g., recursive calls)
+if "releases" in current_dir and "v2.5.1" in current_dir:
+     # We are already in v2.5.1 but running v2.5.0 script? 
+     # This shouldn't happen with correct logic, but let's be safe.
+     target_dir = current_dir
+
+if not os.path.exists(target_dir):
+    # Try absolute path assumption based on project root
+    # Assumption: script is running in project_root/releases/v2.5.0/admin_multi.py
+    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+    target_dir = os.path.join(project_root, "releases", "v2.5.1")
+    
 if not os.path.exists(target_dir):
     st.error(f"Critical Error: Target version directory not found: {target_dir}")
     st.stop()
