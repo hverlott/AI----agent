@@ -3976,7 +3976,6 @@ def render_accounts_panel():
                         loop = asyncio.new_event_loop()
                         asyncio.set_event_loop(loop)
                         client = TelegramClient(s_path, int(t_api_id), t_api_hash, loop=loop)
-                        loop.run_until_complete(client.connect())
                         return client, loop
 
                     col_b1, col_b2 = st.columns(2)
@@ -3984,53 +3983,70 @@ def render_accounts_panel():
                         if not t_api_id or not t_api_hash or not t_phone:
                             st.error("请完善 API ID, Hash 和 手机号")
                         else:
-                            try:
-                                client, loop = get_add_client()
+                            with st.spinner("正在连接 Telegram 服务器..."):
                                 try:
-                                    if loop.run_until_complete(client.is_user_authorized()):
-                                        st.success("✅ 该账号已登录！")
-                                    else:
-                                        loop.run_until_complete(client.send_code_request(t_phone))
-                                        st.success("✅ 验证码已发送！")
-                                finally:
-                                    loop.run_until_complete(client.disconnect())
-                                    loop.close()
-                            except Exception as e:
-                                st.error(f"发送失败: {e}")
+                                    client, loop = get_add_client()
+                                    async def do_send():
+                                        await client.connect()
+                                        if await client.is_user_authorized():
+                                            return "LOGGED_IN"
+                                        else:
+                                            await client.send_code_request(t_phone)
+                                            return "SENT"
+                                    
+                                    try:
+                                        res = loop.run_until_complete(do_send())
+                                        if res == "LOGGED_IN":
+                                            st.success("✅ 该账号已登录！")
+                                        else:
+                                            st.success("✅ 验证码已发送！")
+                                    finally:
+                                        loop.run_until_complete(client.disconnect())
+                                        loop.close()
+                                except Exception as e:
+                                    st.error(f"发送失败: {e}")
                                 
                     if col_b2.button("🚀 验证并登录", key="add_tg_login"):
                         if not t_code:
                              st.error("请输入验证码")
                         else:
-                             try:
-                                 client, loop = get_add_client()
+                             with st.spinner("正在验证并登录..."):
                                  try:
+                                     client, loop = get_add_client()
+                                     async def do_login():
+                                         await client.connect()
+                                         try:
+                                             if t_pwd:
+                                                 await client.sign_in(password=t_pwd)
+                                             else:
+                                                 await client.sign_in(phone=t_phone, code=t_code)
+                                         except SessionPasswordNeededError:
+                                             return "NEED_PWD"
+                                         
+                                         if await client.is_user_authorized():
+                                             me = await client.get_me()
+                                             return me
+                                         return None
+
                                      try:
-                                         if t_pwd:
-                                             loop.run_until_complete(client.sign_in(password=t_pwd))
+                                         res = loop.run_until_complete(do_login())
+                                         if res == "NEED_PWD":
+                                             if not t_pwd:
+                                                 st.error("🔐 需要两步验证密码")
+                                             else:
+                                                 # Should not happen if logic is correct (t_pwd covered above)
+                                                 st.error("🔐 密码错误或需要两步验证")
+                                         elif res:
+                                             u_name = res.username or res.first_name
+                                             st.success(f"✅ 登录成功！用户: {u_name}")
+                                             st.info("Session 文件已生成，点击下方【添加账号】即可保存。")
                                          else:
-                                             loop.run_until_complete(client.sign_in(phone=t_phone, code=t_code))
-                                     except SessionPasswordNeededError:
-                                         if not t_pwd:
-                                             st.error("🔐 需要两步验证密码")
-                                             loop.run_until_complete(client.disconnect())
-                                             loop.close()
-                                             st.stop()
-                                         else:
-                                             loop.run_until_complete(client.sign_in(password=t_pwd))
-                                             
-                                     if loop.run_until_complete(client.is_user_authorized()):
-                                         me = loop.run_until_complete(client.get_me())
-                                         u_name = me.username or me.first_name
-                                         st.success(f"✅ 登录成功！用户: {u_name}")
-                                         st.info("Session 文件已生成，点击下方【添加账号】即可保存。")
-                                     else:
-                                         st.error("❌ 登录未完成")
-                                 finally:
-                                     loop.run_until_complete(client.disconnect())
-                                     loop.close()
-                             except Exception as e:
-                                 st.error(f"登录失败: {e}")
+                                             st.error("❌ 登录未完成")
+                                     finally:
+                                         loop.run_until_complete(client.disconnect())
+                                         loop.close()
+                                 except Exception as e:
+                                     st.error(f"登录失败: {e}")
                     st.divider()
 
                 if st.button(tr("acc_btn_add"), width="stretch", key="acc_add"):
