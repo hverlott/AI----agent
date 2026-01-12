@@ -3943,6 +3943,93 @@ def render_accounts_panel():
                     tags = st.text_input(tr("acc_col_tags"), key="acc_tags")
                     refresh = st.number_input(tr("acc_col_refresh"), min_value=5, max_value=1440, value=60, step=5, key="acc_refresh")
                 
+                # --- Telegram 登录助手 (新增) ---
+                if platform == "Telegram":
+                    st.divider()
+                    st.markdown("#### 🔐 Telegram 登录验证 (可选)")
+                    st.caption("您可以在此直接登录，登录成功后的 Session 文件将自动关联到该账号。")
+                    
+                    # 尝试自动填充 API Config
+                    tg_configs = [c for c in api_db.get("api_configs", []) if c.get("platform") == "Telegram"]
+                    d_api_id = str(tg_configs[0].get("api_id", "")) if tg_configs else ""
+                    d_api_hash = tg_configs[0].get("api_hash", "") if tg_configs else ""
+                    
+                    c_t1, c_t2 = st.columns(2)
+                    t_api_id = c_t1.text_input("API ID", value=d_api_id, key="add_tg_api_id")
+                    t_api_hash = c_t2.text_input("API Hash", value=d_api_hash, key="add_tg_api_hash")
+                    
+                    t_phone = st.text_input("手机号 (用于登录)", value=username if username.startswith("+") else "", key="add_tg_phone", help="例如 +8613800000000")
+                    
+                    c_code1, c_code2 = st.columns(2)
+                    t_code = c_code1.text_input("验证码", key="add_tg_code")
+                    t_pwd = c_code2.text_input("两步验证密码 (如有)", type="password", key="add_tg_pwd")
+                    
+                    def get_add_client():
+                        # 使用手机号作为文件名基础，确保唯一性
+                        safe_p = "".join([c for c in t_phone if c.isalnum() or c in ('-', '_')]).strip()
+                        if not safe_p: safe_p = "unnamed"
+                        s_path = os.path.join(sessions_dir, safe_p) # Telethon auto adds .session
+                        
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        client = TelegramClient(s_path, int(t_api_id), t_api_hash, loop=loop)
+                        loop.run_until_complete(client.connect())
+                        return client, loop
+
+                    col_b1, col_b2 = st.columns(2)
+                    if col_b1.button("📡 发送验证码", key="add_tg_send"):
+                        if not t_api_id or not t_api_hash or not t_phone:
+                            st.error("请完善 API ID, Hash 和 手机号")
+                        else:
+                            try:
+                                client, loop = get_add_client()
+                                try:
+                                    if loop.run_until_complete(client.is_user_authorized()):
+                                        st.success("✅ 该账号已登录！")
+                                    else:
+                                        loop.run_until_complete(client.send_code_request(t_phone))
+                                        st.success("✅ 验证码已发送！")
+                                finally:
+                                    loop.run_until_complete(client.disconnect())
+                                    loop.close()
+                            except Exception as e:
+                                st.error(f"发送失败: {e}")
+                                
+                    if col_b2.button("🚀 验证并登录", key="add_tg_login"):
+                        if not t_code:
+                             st.error("请输入验证码")
+                        else:
+                             try:
+                                 client, loop = get_add_client()
+                                 try:
+                                     try:
+                                         if t_pwd:
+                                             loop.run_until_complete(client.sign_in(password=t_pwd))
+                                         else:
+                                             loop.run_until_complete(client.sign_in(phone=t_phone, code=t_code))
+                                     except SessionPasswordNeededError:
+                                         if not t_pwd:
+                                             st.error("🔐 需要两步验证密码")
+                                             loop.run_until_complete(client.disconnect())
+                                             loop.close()
+                                             st.stop()
+                                         else:
+                                             loop.run_until_complete(client.sign_in(password=t_pwd))
+                                             
+                                     if loop.run_until_complete(client.is_user_authorized()):
+                                         me = loop.run_until_complete(client.get_me())
+                                         u_name = me.username or me.first_name
+                                         st.success(f"✅ 登录成功！用户: {u_name}")
+                                         st.info("Session 文件已生成，点击下方【添加账号】即可保存。")
+                                     else:
+                                         st.error("❌ 登录未完成")
+                                 finally:
+                                     loop.run_until_complete(client.disconnect())
+                                     loop.close()
+                             except Exception as e:
+                                 st.error(f"登录失败: {e}")
+                    st.divider()
+
                 if st.button(tr("acc_btn_add"), width="stretch", key="acc_add"):
                     item = {
                         "platform": platform, 
