@@ -1,0 +1,37 @@
+{
+  "include": [
+    "src",
+    "releases",
+    "."
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*"
+  ],
+  "extraPaths": [
+    ".",
+    "releases/v2.5.0",
+    "src"
+  ],
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": "none",
+  "pythonVersion": "3.10",
+  "executionEnvironments": [
+    {
+      "root": "releases/v2.5.0",
+      "extraPaths": [
+        ".",
+        "../../src",
+        "../.."
+      ]
+    },
+    {
+      "root": ".",
+      "extraPaths": [
+        ".",
+        "src"
+      ]
+    }
+  ]
+}

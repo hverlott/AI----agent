@@ -51,305 +51,283 @@ elif (BASE_DIR.parent.name == "releases" or BASE_DIR.parent.name.startswith("v")
 else:
     DATA_DIR = BASE_DIR / "data"
 
-# CSS 样式（Windows 11 风格优化版）
+# CSS 样式（现代化：ui-ux-pro-max 推荐配置 - SaaS Blue + Glassmorphism + Poppins）
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
 
     :root {
-        --bg-color: #f3f3f3;
-        --card-bg: #ffffff;
-        --text-color: #202020;
-        --text-secondary: #606060;
-        --accent-color: #0078d4;
-        --accent-hover: #006cc1;
-        --border-color: #e5e5e5;
-        --border-radius-sm: 4px;
-        --border-radius-md: 8px;
-        --border-radius-lg: 12px;
-        --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
-        --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-        --font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei", sans-serif;
+        /* Palette: SaaS Trust Blue (ui-ux-pro-max) */
+        --bg: #F8FAFC;
+        --panel: rgba(255, 255, 255, 0.85);
+        --panel-strong: #ffffff;
+        --text: #1E293B;
+        --muted: #64748B;
+        --accent: #2563EB; /* Trust Blue */
+        --accent-hover: #1D4ED8;
+        --accent-2: #3B82F6; /* Secondary Blue */
+        --cta: #F97316; /* CTA Orange */
+        
+        --border: #E2E8F0;
+        --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+        
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Open Sans', sans-serif;
     }
 
-    /* 全局样式 */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #0F172A; /* Slate 900 */
+            --panel: rgba(30, 41, 59, 0.70);
+            --panel-strong: #1E293B;
+            --text: #F1F5F9;
+            --muted: #94A3B8;
+            --border: #334155;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    html, body, [class*="css"]  {
+        font-family: var(--font-body);
+        color: var(--text);
+    }
+    
+    h1, h2, h3, h4, h5, h6, .topbar-title {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        color: var(--text);
+        letter-spacing: -0.02em;
+    }
+
     .stApp {
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        font-family: var(--font-family);
+        background:
+            radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.08), transparent 25%),
+            radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%),
+            var(--bg);
+        color: var(--text);
     }
-    
-    /* 侧边栏 */
+
+    #MainMenu, footer, header { visibility: hidden; }
+
+    .block-container {
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+        max-width: 1400px; /* Data-Dense layout */
+    }
+
     [data-testid="stSidebar"] {
-        background-color: #f9f9f9;
-        border-right: 1px solid var(--border-color);
-    }
-    [data-testid="stSidebar"] .element-container {
-        margin-bottom: 0.2rem;
-    }
-    /* 侧边栏导航按钮优化 */
-    [data-testid="stSidebar"] .stButton button {
-        width: 100%;
-        text-align: left;
-        justify-content: flex-start;
-        padding-left: 16px;
-        border: none;
-        background: transparent;
-        color: var(--text-color);
-        font-weight: 500;
-        box-shadow: none;
-        transition: all 0.2s ease;
-    }
-    [data-testid="stSidebar"] .stButton button:hover {
-        background-color: rgba(0,0,0,0.05);
-        transform: none;
-        box-shadow: none;
-    }
-    /* 选中状态 (Primary Button in Sidebar) */
-    [data-testid="stSidebar"] .stButton button[kind="primary"] {
-        background-color: #e5f1fb;
-        color: var(--accent-color);
-        font-weight: 600;
-        border-left: 3px solid var(--accent-color);
-        padding-left: 13px; /* 补偿 border-left 宽度 */
-    }
-    /* Expander in Sidebar */
-    [data-testid="stSidebar"] .streamlit-expanderHeader {
-        background-color: transparent;
-        border: none;
-        font-weight: 600;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-    [data-testid="stSidebar"] .streamlit-expanderContent {
-        border: none;
-        padding-left: 0;
-        padding-right: 0;
-        background-color: transparent;
-    }
-
-    /* 标题与文本 */
-    h1, h2, h3, h4, h5, h6 {
-        font-family: var(--font-family);
-        color: var(--text-color);
-        font-weight: 600;
-        letter-spacing: -0.01em;
-    }
-    .stMarkdown p {
-        color: var(--text-color);
-    }
-
-    /* 顶部导航栏 (Glassmorphismish) */
-    .topbar {
-        background: var(--card-bg);
-        padding: 16px 24px;
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-sm);
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border: 1px solid var(--border-color);
-    }
-    .topbar-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--text-color);
-    }
-    .topbar-sub {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-top: 4px;
-    }
-    .topbar-meta .tag {
-        background: #f0f0f0;
-        padding: 4px 10px;
-        border-radius: 99px;
-        margin-left: 8px;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        border: 1px solid var(--border-color);
-    }
-
-    /* 卡片样式 */
-    .platform-card {
-        background-color: var(--card-bg);
-        border-radius: var(--border-radius-md);
-        border: 1px solid var(--border-color);
-        padding: 16px;
-        margin-bottom: 12px;
-        box-shadow: var(--shadow-sm);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .platform-card:hover {
-        box-shadow: var(--shadow-md);
-        transform: translateY(-2px);
-        border-color: var(--accent-color);
-    }
-    .platform-active {
-        border-color: var(--accent-color);
-        background-color: #f0f7ff;
-    }
-
-    /* 按钮 */
-    .stButton > button {
-        border-radius: var(--border-radius-sm);
-        font-weight: 600;
-        border: 1px solid transparent;
-        transition: all 0.15s ease;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-    .stButton > button:hover {
-        transform: scale(1.01);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    /* 主要按钮通常由 Streamlit theme 控制，这里微调 */
-    
-    /* 输入框 */
-    .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-        border-radius: var(--border-radius-sm);
-        border: 1px solid var(--border-color);
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        transition: border 0.2s ease;
-    }
-    .stTextInput input:focus, .stTextArea textarea:focus, .stSelectbox div[data-baseweb="select"]:focus-within {
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
-    }
-
-    /* Tabs 选项卡 */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: transparent;
-        padding-bottom: 8px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent;
-        border-radius: var(--border-radius-sm);
-        border: none;
-        color: var(--text-secondary);
-        font-weight: 600;
-        padding: 8px 16px;
-        transition: background-color 0.2s;
-    }
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgba(0,0,0,0.04);
-        color: var(--text-color);
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: var(--card-bg);
-        color: var(--accent-color);
-        box-shadow: var(--shadow-sm);
-        position: relative;
-    }
-    /* Win11 底部指示条效果模拟 */
-    .stTabs [aria-selected="true"]::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 10%;
-        width: 80%;
-        height: 2px;
-        background-color: var(--accent-color);
-        border-radius: 2px;
-    }
-
-    /* Sidebar 优化 (Win11 风格) */
-    [data-testid="stSidebar"] {
-        background-color: #f3f3f3; /* Win11 Mica-like background */
-        border-right: 1px solid var(--border-color);
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        backdrop-filter: blur(12px); /* Glassmorphism Spec */
     }
     [data-testid="stSidebarUserContent"] {
         padding-top: 20px;
     }
+
+    .stMarkdown, .stMarkdown p {
+        color: var(--text);
+    }
+
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 24px;
+        color: white;
+    }
+    .topbar-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #fff !important;
+        line-height: 1.2;
+        margin: 0;
+    }
+    .topbar-sub {
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.9);
+        font-weight: 400;
+        margin-top: 4px;
+    }
+    .topbar-meta .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.22rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.30);
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(255,255,255,0.92);
+        font-size: 0.78rem;
+        margin-left: 0.35rem;
+        white-space: nowrap;
+    }
+
+    .platform-card {
+        background: var(--panel);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: blur(12px);
+        transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+    .platform-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(37, 99, 235, 0.45);
+    }
+    .platform-active {
+        border-color: rgba(37, 99, 235, 0.55);
+        background: linear-gradient(180deg, rgba(37, 99, 235, 0.12), transparent);
+    }
+
+    .stButton > button {
+        border-radius: 12px;
+        font-weight: 700;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+    .stButton > button:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(37, 99, 235, 0.30);
+    }
+    .stButton > button:focus-visible {
+        outline: none;
+        box-shadow: var(--shadow-md), var(--ring);
+    }
+
     [data-testid="stSidebar"] .stButton button {
         width: 100%;
-        border-radius: var(--border-radius-sm);
         text-align: left;
+        justify-content: flex-start;
+        padding-left: 14px;
         border: 1px solid transparent;
         background: transparent;
-        color: var(--text-color);
-        padding: 0.5rem 1rem;
-        transition: all 0.2s ease;
+        color: var(--text);
+        box-shadow: none;
+        font-weight: 650;
     }
     [data-testid="stSidebar"] .stButton button:hover {
-        background-color: rgba(0,0,0,0.05);
-        border-color: rgba(0,0,0,0.1);
+        background: rgba(148, 163, 184, 0.14);
+        box-shadow: none;
+        transform: none;
     }
-    [data-testid="stSidebar"] .stButton button:focus {
-        background-color: #ffffff;
-        color: var(--accent-color);
-        border-color: rgba(0,0,0,0.1);
+    [data-testid="stSidebar"] .stButton button[kind="primary"] {
+        background: rgba(37, 99, 235, 0.14);
+        color: var(--text);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+    }
+
+    .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel-strong);
+        color: var(--text);
+        box-shadow: var(--shadow-sm);
+    }
+    .stTextInput input:focus, .stTextArea textarea:focus, .stSelectbox div[data-baseweb="select"]:focus-within {
+        border-color: rgba(37, 99, 235, 0.45);
+        box-shadow: var(--shadow-md), var(--ring);
+    }
+
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0.45rem;
+        padding: 0.25rem;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.12);
+        border: 1px solid var(--border);
+    }
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 999px;
+        padding: 0.42rem 0.95rem;
+        color: var(--muted);
+        font-weight: 750;
+        border: 1px solid transparent;
+        background: transparent;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(148, 163, 184, 0.14);
+        color: var(--text);
+    }
+    .stTabs [aria-selected="true"] {
+        background: var(--panel-strong);
+        border: 1px solid var(--border);
+        color: var(--text);
         box-shadow: var(--shadow-sm);
     }
 
-    /* Metrics 指标卡 */
     [data-testid="stMetric"] {
-        background-color: var(--card-bg);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
         padding: 16px;
-        border-radius: var(--border-radius-md);
         box-shadow: var(--shadow-sm);
-        border: 1px solid var(--border-color);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        backdrop-filter: blur(12px);
+        transition: transform 160ms ease, box-shadow 160ms ease;
     }
     [data-testid="stMetric"]:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
     }
     [data-testid="stMetric"] label {
-        color: var(--text-secondary);
-        font-size: 0.85rem;
-    }
-    [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        color: var(--text-color);
-        font-weight: 600;
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 650;
     }
 
-    /* 状态徽章 */
-    .status-badge {
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        display: inline-block;
-    }
-    .status-running { background-color: #dff6dd; color: #107c10; border: 1px solid #bce2be; }
-    .status-stopped { background-color: #fde7e9; color: #c50f1f; border: 1px solid #f8c4c9; }
-    .status-pending { background-color: #fff4ce; color: #7d6802; border: 1px solid #fde589; }
+    .status-running { background: rgba(16, 185, 129, 0.18); color: var(--text); border: 1px solid rgba(16, 185, 129, 0.35); padding: 6px 10px; border-radius: 12px; font-weight: 750; }
+    .status-stopped { background: rgba(244, 63, 94, 0.16); color: var(--text); border: 1px solid rgba(244, 63, 94, 0.32); padding: 6px 10px; border-radius: 12px; font-weight: 750; }
+    .status-pending { background: rgba(245, 158, 11, 0.18); color: var(--text); border: 1px solid rgba(245, 158, 11, 0.34); padding: 6px 10px; border-radius: 12px; font-weight: 750; }
 
-    /* Expander (Win11 风格) */
     .streamlit-expanderHeader {
-        background-color: var(--card-bg);
-        border-radius: var(--border-radius-sm) !important;
-        border: 1px solid var(--border-color);
-        margin-bottom: 4px;
-        color: var(--text-color);
-        font-weight: 500;
+        background: var(--panel);
+        border-radius: 14px !important;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+        color: var(--text);
+        font-weight: 750;
     }
     .streamlit-expanderContent {
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
         border-top: none;
-        border-bottom-left-radius: var(--border-radius-sm);
-        border-bottom-right-radius: var(--border-radius-sm);
+        border-bottom-left-radius: 14px;
+        border-bottom-right-radius: 14px;
         padding: 16px;
-        background-color: #ffffff; /* Explicit white for content */
-    }
-
-    /* Alerts (Info, Success, Warning, Error) - Win11 Style */
-    [data-testid="stAlert"] {
-        border-radius: var(--border-radius-sm);
-        padding: 0.75rem 1rem;
+        background: var(--panel-strong);
         box-shadow: var(--shadow-sm);
-        border: 1px solid rgba(0,0,0,0.05);
     }
 
-    /* Dataframe 表格 */
+    [data-testid="stAlert"] {
+        border-radius: 14px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+        background: var(--panel);
+        backdrop-filter: blur(12px);
+    }
+
     [data-testid="stDataFrame"] {
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius-sm);
+        border: 1px solid var(--border);
+        border-radius: 14px;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        background: var(--panel-strong);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -7384,19 +7362,19 @@ def render_system_admin_panel():
                 st.success("已是最新版本。")
 
 def main():
+    """主函数"""
     if 'show_login_panel' not in st.session_state:
         st.session_state.show_login_panel = False
-
-    """主函数"""
     _require_system_login()
-    
-    # 使用新的顶部导航栏
-    render_top_bar()
 
     if 'lang' not in st.session_state:
         st.session_state.lang = 'zh'
     if 'tenant' not in st.session_state:
         st.session_state.tenant = 'default'
+    if 'timezone' not in st.session_state:
+        st.session_state.timezone = "Asia/Shanghai"
+
+    render_top_bar()
 
     sys_user = st.session_state.get("sys_user") or {}
     st.sidebar.markdown("### 👤 当前登录")
@@ -7416,8 +7394,6 @@ def main():
     
     st.sidebar.markdown(f"### 🕒 {tr('nav_timezone')}")
     common_timezones = ["UTC", "Asia/Shanghai", "Asia/Hong_Kong", "Asia/Tokyo", "Asia/Singapore", "America/New_York", "Europe/London", "Europe/Paris", "Australia/Sydney"]
-    if 'timezone' not in st.session_state:
-        st.session_state.timezone = "Asia/Shanghai"
     
     tz_idx = 0
     if st.session_state.timezone in common_timezones:
