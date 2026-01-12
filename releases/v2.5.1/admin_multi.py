@@ -3945,6 +3945,9 @@ def render_accounts_panel():
                 
                 # --- Telegram 登录助手 (新增) ---
                 if platform == "Telegram":
+                    from telethon import TelegramClient
+                    from telethon.errors import SessionPasswordNeededError
+                    
                     st.divider()
                     st.markdown("#### 🔐 Telegram 登录验证 (可选)")
                     st.caption("您可以在此直接登录，登录成功后的 Session 文件将自动关联到该账号。")
