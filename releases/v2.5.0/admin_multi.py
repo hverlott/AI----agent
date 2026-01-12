@@ -38,10 +38,13 @@ except ImportError:
 website_title = db.get_system_config("website_title", "SaaS AI System v2.5.0")
 
 st.set_page_config(
-    page_title=website_title,
+    page_title="⚠️ OLD VERSION v2.5.0",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+st.error("🚨 YOU ARE USING AN OUTDATED VERSION (v2.5.0). PLEASE UPGRADE TO v2.5.1 🚨")
+st.warning("This version is no longer supported. Data persistence and features may be unstable.")
 
 APP_VERSION = "2.5.0"
 

@@ -1,7 +1,0 @@
-platforms: ok
-data: error: maximum recursion depth exceeded
-admin_multi.py: ok
-admin.py: ok
-audit_manager.py: ok
-keyword_manager.py: ok
-.env: ok

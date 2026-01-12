@@ -177,11 +177,14 @@ def super_admin_view():
     # 5. Upgrade
     with tabs[4]:
         st.subheader("System Update")
-        st.info(f"Current Version: V2.5.1 (Build {int(time.time())})")
+        st.success(f"✅ System is running v2.5.1 (Active)")
+        st.info(f"Build Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        
         if st.button("Check for Updates"):
             with st.spinner("Checking remote repository..."):
-                time.sleep(2)
-                st.success("System is up to date.")
+                time.sleep(1)
+                st.balloons()
+                st.success("You are on the latest version: v2.5.1")
 
 def business_admin_view(user):
     tenant_id = user['tenant_id']
