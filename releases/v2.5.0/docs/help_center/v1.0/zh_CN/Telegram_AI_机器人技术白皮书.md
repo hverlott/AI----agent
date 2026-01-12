@@ -96,7 +96,10 @@ sequenceDiagram
 
 ### 3.2 消息处理全链路 (Message Pipeline)
 
-系统对每一条消息进行毫秒级的多维度处理，确保响应的准确性与安全性。
+系统对每一条消息进行毫秒级的多维度处理。根据配置模式不同，分为 **RAG 问答模式** 和 **SOP 编排模式**。
+
+#### 3.2.1 模式 A: RAG 知识库问答 (Standard RAG Flow)
+适用于通用的客服问答场景，基于知识库进行检索增强生成。
 
 ```mermaid
 sequenceDiagram
@@ -106,29 +109,52 @@ sequenceDiagram
     participant LLM as 大模型 (AI)
     participant DB as 数据库 (DB)
 
-    U->>SYS: 发送消息 (Private/Group)
-    SYS->>SYS: 1. 权限校验 (白名单/黑名单)
-    SYS->>SYS: 2. 意图识别 (关键词/@提及/上下文)
+    U->>SYS: 发送消息
+    SYS->>SYS: 权限与意图识别
     
     alt 触发回复
-        SYS->>KB: 3. 语义检索 (Top-K)
-        KB-->>SYS: 返回相关文档片段
+        SYS->>KB: 语义检索 (Top-K)
+        KB-->>SYS: 返回相关文档
         
-        SYS->>LLM: 4. 构建 Prompt (System + KB + History)
-        LLM-->>SYS: 生成回复 (Streaming)
+        SYS->>LLM: 构建 Prompt (System + KB + History)
+        LLM-->>SYS: 生成回复
         
-        SYS->>SYS: 5. 格式化与风控检查
-        
-        par 并行执行
-            SYS->>U: 6. 发送回复
-            SYS->>DB: 7. 记录完整日志 (User_Content + Bot_Response)
-        end
+        SYS->>U: 发送回复
+        SYS->>DB: 记录日志
     else 不触发
-        SYS-->>U: (静默忽略)
+        SYS-->>U: (静默)
     end
 ```
 
-### 3.2 智能路由与判断逻辑 (Decision Logic)
+#### 3.2.2 模式 B: SOP 多智能体编排 (Orchestrator Flow)
+适用于复杂的销售引导或业务办理流程，通过状态机管理对话阶段。
+
+```mermaid
+sequenceDiagram
+    participant U as 用户 (User)
+    participant SYS as 系统核心
+    participant STATE as 状态管理器 (Redis)
+    participant SUP as Supervisor (决策者)
+    participant WORK as Worker (执行者)
+
+    U->>SYS: 发送消息
+    SYS->>STATE: 获取当前会话状态 (Stage/Persona)
+    
+    SYS->>SUP: 分析意图与下一阶段 (Decide)
+    SUP-->>SYS: 决策结果 (Next Stage, Handoff?)
+    
+    SYS->>STATE: 更新状态
+    
+    alt 需要转人工
+        SYS-->>U: 发送转接提示
+    else AI 继续跟进
+        SYS->>WORK: 生成话术 (基于当前 Stage Prompt + KB)
+        WORK-->>SYS: 生成回复
+        SYS-->>U: 发送回复
+    end
+```
+
+### 3.3 智能路由与判断逻辑 (Decision Logic)
 
 系统不仅仅是简单的问答，而是具备“判断力”的智能体。
 

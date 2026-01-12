@@ -132,6 +132,24 @@ st.markdown("""
         border-right: 1px solid var(--border);
     }
     
+    /* Enhanced Sidebar Toggle (Open Button) */
+    [data-testid="stSidebarCollapsedControl"] {
+        background-color: var(--panel);
+        border: 2px solid var(--accent);
+        border-radius: var(--radius-md);
+        color: var(--accent);
+        padding: 4px;
+        margin-top: 4px;
+        margin-left: 4px;
+        box-shadow: var(--shadow-md);
+        transition: all 0.2s ease;
+    }
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: var(--accent);
+        color: #FFFFFF;
+        transform: scale(1.05);
+    }
+
     /* Top Bar - Mobile Optimized */
     .topbar {
         display: flex;
@@ -139,7 +157,7 @@ st.markdown("""
         gap: 12px;
         padding: 16px;
         border-radius: var(--radius-lg);
-        background: var(--panel);
+        background: #F1F5F9; /* Distinct background color */
         border: 1px solid var(--border);
         box-shadow: var(--shadow-sm);
         margin-bottom: 20px;
@@ -1981,11 +1999,11 @@ def render_top_bar():
         c_title, c_info, c_action = st.columns([3, 2, 1])
         
         with c_title:
-            st.markdown(f"""
-            <div class="topbar-title" style="height: 100%; display: flex; align-items: center;">
-                {icon} {title}
-            </div>
-            """, unsafe_allow_html=True)
+                    st.markdown(f"""
+                    <div class="topbar-title" style="height: 100%; display: flex; align-items: center;">
+                        {title}
+                    </div>
+                    """, unsafe_allow_html=True)
             
         with c_info:
             # Hide detailed info on very small screens if needed, but flex wrap handles it usually
@@ -6098,7 +6116,11 @@ def start_whatsapp_bot():
     try:
         # 检查 Node.js
         import subprocess
-        result = subprocess.run(['node', '--version'], capture_output=True, text=True, encoding='utf-8', errors='replace')
+        node_cmd = shutil.which("node")
+        if not node_cmd:
+            return False, tr("wa_err_no_node") + " (Command 'node' not found in PATH)"
+
+        result = subprocess.run([node_cmd, '--version'], capture_output=True, text=True, encoding='utf-8', errors='replace')
         if result.returncode != 0:
             return False, tr("wa_err_no_node")
         
@@ -6461,8 +6483,18 @@ def render_whatsapp_stats():
     try:
         import json
         from datetime import datetime
-        with open(stats_file, 'r', encoding='utf-8') as f:
-            stats = json.load(f)
+        
+        # 默认统计数据
+        default_stats = {
+            "total_messages": 0, "total_replies": 0, "success_count": 0, 
+            "error_count": 0, "last_active": None
+        }
+        
+        if os.path.exists(stats_file):
+            with open(stats_file, 'r', encoding='utf-8') as f:
+                stats = json.load(f)
+        else:
+            stats = default_stats
 
         
         # 计算成功率
@@ -6970,8 +7002,15 @@ def render_help_center():
     files = [f for f in os.listdir(current_dir) if f.endswith(".md")]
     files.sort()
     
-    # Win11 Style Selector
-    selected_doc = st.selectbox("📚 选择文档", files, key=f"hc_sel_{lang}") if files else None
+    # 优先使用侧边栏的选择 (Sidebar Selection Priority)
+    selected_doc = st.session_state.get("doc_selector")
+    
+    # 如果侧边栏没有选择（或者不在当前文件列表中），则显示备用选择器
+    if not selected_doc or selected_doc not in files:
+        if files:
+            selected_doc = st.selectbox("📚 选择文档", files, key=f"hc_sel_{lang}")
+        else:
+            selected_doc = None
 
     if selected_doc:
         try:
@@ -7474,14 +7513,10 @@ def main():
     
     sys_user = st.session_state.get("sys_user") or {}
     
-    st.sidebar.markdown("### 👤 当前登录")
-    st.sidebar.caption(f"账号: {sys_user.get('username', '-')}")
-    st.sidebar.caption(f"角色: {st.session_state.get('user_role', '-')}")
-    if sys_user.get("tenant_id"):
-        st.sidebar.caption(f"租户: {sys_user.get('tenant_id')}")
-    if st.sidebar.button("退出登录", use_container_width=True, key="logout_sidebar"):
-        _logout_system_user()
-
+    # ----------------------
+    # Sidebar Settings (Language, Timezone, Tenant)
+    # ----------------------
+    
     # st.sidebar.markdown("### 👤 身份切换")
     # st.sidebar.caption("当前系统仅支持 superAdmin 权限")
     # st.sidebar.divider()

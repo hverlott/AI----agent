@@ -90,7 +90,7 @@ class RemoteAuditor:
 
 class AuditManager:
     def __init__(self, ai_client, model_name, config_loader=None, platform: str = "telegram",
-                 primary_client=None, secondary_client=None, primary_model=None, secondary_model=None, log_dir=None):
+                 primary_client=None, secondary_client=None, primary_model=None, secondary_model=None, log_dir=None, fallback_path=None):
         self.ai_client = ai_client
         self.model_name = model_name
         self.config_loader = config_loader
@@ -101,11 +101,15 @@ class AuditManager:
         if log_dir:
             self._setup_logger(log_dir)
             
-        fallback_path = os.path.join(log_dir if log_dir else os.path.join("platforms", "telegram"), "audit_fallback.txt")
-        # Ensure fallback path is valid or default to relative if log_dir not provided (fallback)
-        if not log_dir:
-             fallback_path = os.path.join("platforms", "telegram", "audit_fallback.txt")
-             
+        if not fallback_path:
+            # Legacy path resolution logic (buggy if log_dir ends with logs, but kept for compatibility if not provided)
+            # Try to fix the "logs" issue if implicit
+            base_dir = log_dir
+            if base_dir and base_dir.replace('\\', '/').endswith('/logs'):
+                 base_dir = os.path.dirname(base_dir)
+            
+            fallback_path = os.path.join(base_dir if base_dir else os.path.join("platforms", "telegram"), "audit_fallback.txt")
+            
         self._fallback_cache = FallbackCache(fallback_path)
         
         mode = self._get_config('AUDIT_MODE', 'local').lower()
