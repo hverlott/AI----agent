@@ -189,7 +189,7 @@ vim .env
 TELEGRAM_API_ID=你的API_ID
 TELEGRAM_API_HASH=你的API_HASH
 AI_API_KEY=你的AI密钥
-AI_BASE_URL=https://api.55.ai/v1
+AI_BASE_URL=https://api.open.ai
 AI_MODEL_NAME=deepseek-v3.1
 ```
 
@@ -276,7 +276,7 @@ AI_MODEL_NAME=gpt-3.5-turbo
 如果使用第三方 API（如 55.ai）：
 ```env
 AI_API_KEY=sk-xxx
-AI_BASE_URL=https://api.55.ai/v1
+AI_BASE_URL=https://api.open.ai
 AI_MODEL_NAME=deepseek-v3.1
 ```
 
@@ -296,7 +296,7 @@ python3 main.py
 
 按提示操作：
 ```
-请输入手机号（国际格式）: +86xxxxxxxxxx
+请输入手机号（国际格式）: +88xxxxxxxxxx
 请输入验证码: 12345
 (如果启用两步验证) 请输入云密码: ******
 ```
