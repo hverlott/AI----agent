@@ -2536,6 +2536,18 @@ def render_tenant_login_panel(tenant_id, session_name):
     api_hash = os.getenv('TELEGRAM_API_HASH')
     
     if not api_id or not api_hash:
+        # 尝试从租户配置读取
+        try:
+            import json
+            t_conf_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "platforms", "telegram", "config.json")
+            if os.path.exists(t_conf_path):
+                with open(t_conf_path, "r", encoding='utf-8') as f:
+                    c = json.load(f)
+                    api_id = c.get("api_id")
+                    api_hash = c.get("api_hash")
+        except: pass
+
+    if not api_id or not api_hash:
         st.error("❌ 未配置 TELEGRAM_API_ID / API_HASH")
         return
 
@@ -2571,7 +2583,7 @@ def render_tenant_login_panel(tenant_id, session_name):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             client = TelegramClient(s_path_no_ext, int(api_id), api_hash, loop=loop)
-            client.connect() # Sync wait
+            # client.connect() # Sync wait - Removed to avoid RuntimeWarning, handled by context manager or explicit connect
             return client, loop
 
         c_btn1, c_btn2 = st.columns(2)
@@ -2584,7 +2596,7 @@ def render_tenant_login_panel(tenant_id, session_name):
                     try:
                         client, loop = get_client()
                         with client:
-                            client.send_code_request(phone)
+                            loop.run_until_complete(client.send_code_request(phone))
                         state["step"] = "code"
                         state["message"] = "✅ 验证码已发送，请查收 Telegram"
                     except Exception as e:
@@ -2597,12 +2609,12 @@ def render_tenant_login_panel(tenant_id, session_name):
                     client, loop = get_client()
                     with client:
                         if state.get("step") == "password" or password:
-                             client.sign_in(password=password)
+                             loop.run_until_complete(client.sign_in(password=password))
                         else:
-                             client.sign_in(phone=phone, code=code)
+                             loop.run_until_complete(client.sign_in(phone=phone, code=code))
                         
-                        if client.is_user_authorized():
-                            me = client.get_me()
+                        if loop.run_until_complete(client.is_user_authorized()):
+                            me = loop.run_until_complete(client.get_me())
                             username = me.username or me.first_name
                             state["message"] = f"✅ 登录成功！用户: {username}"
                             st.session_state.show_login_panel = False
