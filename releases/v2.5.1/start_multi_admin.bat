@@ -56,6 +56,9 @@ if "%ONLY_CHECK%"=="1" (
   exit /b 0
 )
 
+REM Fix for Python 3.14 + Protobuf compatibility
+set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+
 REM Run Application
 "%PYTHON_EXE%" -m streamlit run admin_multi.py
 
