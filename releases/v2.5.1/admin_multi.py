@@ -2583,7 +2583,8 @@ def render_tenant_login_panel(tenant_id, session_name):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             client = TelegramClient(s_path_no_ext, int(api_id), api_hash, loop=loop)
-            # client.connect() # Sync wait - Removed to avoid RuntimeWarning, handled by context manager or explicit connect
+            # 显式连接，不使用 with client 上下文管理器，因为我们需要手动控制连接和关闭
+            loop.run_until_complete(client.connect())
             return client, loop
 
         c_btn1, c_btn2 = st.columns(2)
@@ -2595,10 +2596,17 @@ def render_tenant_login_panel(tenant_id, session_name):
                 else:
                     try:
                         client, loop = get_client()
-                        with client:
-                            loop.run_until_complete(client.send_code_request(phone))
-                        state["step"] = "code"
-                        state["message"] = "✅ 验证码已发送，请查收 Telegram"
+                        try:
+                            # 检查是否已授权，避免重复发送
+                            if loop.run_until_complete(client.is_user_authorized()):
+                                state["message"] = "✅ 该账号已登录，无需再次发送验证码"
+                            else:
+                                loop.run_until_complete(client.send_code_request(phone))
+                                state["step"] = "code"
+                                state["message"] = "✅ 验证码已发送，请查收 Telegram"
+                        finally:
+                            loop.run_until_complete(client.disconnect())
+                            loop.close()
                     except Exception as e:
                         state["message"] = f"发送失败: {e}"
                     st.rerun()
@@ -2607,7 +2615,7 @@ def render_tenant_login_panel(tenant_id, session_name):
             if st.button("🚀 登录", type="primary", key=f"btn_login_{state_key}"):
                 try:
                     client, loop = get_client()
-                    with client:
+                    try:
                         if state.get("step") == "password" or password:
                              loop.run_until_complete(client.sign_in(password=password))
                         else:
@@ -2638,6 +2646,9 @@ def render_tenant_login_panel(tenant_id, session_name):
                                 
                         else:
                             state["message"] = "❌ 登录未完成，可能需要密码"
+                    finally:
+                        loop.run_until_complete(client.disconnect())
+                        loop.close()
                 except SessionPasswordNeededError:
                     state["step"] = "password"
                     state["message"] = "🔐 需要两步验证密码"
