@@ -26,6 +26,15 @@ class DatabaseManager:
         conn = self._get_conn()
         cursor = conn.cursor()
         
+        # 系统配置表 (System Configurations)
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS system_configs (
+            key TEXT PRIMARY KEY,
+            value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+
         # 会话表 (Session Persistence)
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS sessions (
@@ -723,6 +732,18 @@ class DatabaseManager:
                 "updated_at": r.get("updated_at")
             })
         return result
+
+    # --- System Configs ---
+
+    def get_system_config(self, key: str, default: str = None) -> str:
+        rows = self.execute_query("SELECT value FROM system_configs WHERE key = ?", (key,))
+        return rows[0]['value'] if rows else default
+
+    def set_system_config(self, key: str, value: str):
+        self.execute_update(
+            "INSERT INTO system_configs (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+            (key, value, datetime.now())
+        )
 
     # --- Tenant & User Management (SaaS) ---
 

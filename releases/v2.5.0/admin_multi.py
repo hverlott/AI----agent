@@ -34,8 +34,11 @@ except ImportError:
     VersionManager = None
 
 # 页面配置
+# Fetch system config
+website_title = db.get_system_config("website_title", "SaaS AI System v2.5.0")
+
 st.set_page_config(
-    page_title="SaaS AI System v2.5.0",
+    page_title=website_title,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -7282,9 +7285,11 @@ def _render_system_login():
     _ensure_auth_manager()
     _ensure_default_super_admin()
 
-    st.markdown("""
+    login_title = db.get_system_config("login_panel_title", "SaaS AI System")
+
+    st.markdown(f"""
     <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="font-family: 'Segoe UI', sans-serif; color: #0078d4;">SaaS AI System</h1>
+        <h1 style="font-family: 'Segoe UI', sans-serif; color: #0078d4;">{login_title}</h1>
         <p style="color: #606060;">Enterprise Management Console</p>
     </div>
     """, unsafe_allow_html=True)
@@ -7374,7 +7379,7 @@ def render_system_admin_panel():
     st.header("🛠️ 系统管理")
     _ensure_auth_manager()
 
-    tabs = st.tabs(["👥 租户与系统账号", "🛡️ IP白名单", "📜 登录日志", "📈 系统状态", "🚀 系统升级"])
+    tabs = st.tabs(["👥 租户与系统账号", "🛡️ IP白名单", "📜 登录日志", "📈 系统状态", "🚀 系统升级", "🔤 系统名称配置"])
 
     with tabs[0]:
         c1, c2 = st.columns(2)
@@ -7520,6 +7525,27 @@ def render_system_admin_panel():
             if st.button("检查更新", use_container_width=True):
                 st.success("已是最新版本。")
 
+    with tabs[5]:
+        with st.expander("🔤 网站与登录配置", expanded=True):
+            with st.form("sys_config_form"):
+                current_web_title = db.get_system_config("website_title", "SaaS AI System v2.5.0")
+                current_login_title = db.get_system_config("login_panel_title", "SaaS AI System - Admin Login")
+                
+                new_web_title = st.text_input("网站标题 (Website Title)", value=current_web_title)
+                new_login_title = st.text_input("登录面板标题 (Login Panel Title)", value=current_login_title)
+                
+                submitted = st.form_submit_button("保存配置", use_container_width=True)
+                
+                if submitted:
+                    try:
+                        db.set_system_config("website_title", new_web_title)
+                        db.set_system_config("login_panel_title", new_login_title)
+                        st.success("配置已保存，请刷新页面生效。")
+                        time.sleep(1)
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"保存失败: {str(e)}")
+
 def main():
     """主函数"""
     if 'show_login_panel' not in st.session_state:
@@ -7597,6 +7623,8 @@ def main():
     # 侧边栏底部信息
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📊 系统信息")
+    web_title_disp = db.get_system_config("website_title", "SaaS AI System v2.5.0")
+    st.sidebar.caption(f"网站: {web_title_disp}")
     st.sidebar.caption(f"版本: {APP_VERSION}")
     st.sidebar.caption(f"Python: {sys.version.split()[0]}")
     st.sidebar.caption(f"Streamlit: {st.__version__}")
