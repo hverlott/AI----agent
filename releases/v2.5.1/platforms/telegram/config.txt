@@ -1,0 +1,51 @@
+# ========================================
+# Telegram AI Bot - 功能配置
+# ========================================
+
+# 个人消息回复开关
+PRIVATE_REPLY=on
+
+# 群消息回复开关
+GROUP_REPLY=on
+
+# AI 会话编排引擎 (SOP/Persona/KB)
+CONV_ORCHESTRATION=off
+
+# 知识库直答（不走剧本）
+KB_ONLY_REPLY=on
+
+# 对话呈现模式
+CONVERSATION_MODE=ai_visible
+
+# 人工触发关键词（逗号分隔）
+HANDOFF_KEYWORDS=人工,转客服,转技术
+
+# 人工兜底话术（单行）
+HANDOFF_MESSAGE=好的，请稍等，真正转接
+
+# KB_ONLY兜底话术（单行）
+KB_FALLBACK_MESSAGE=这个问题需要技术处理
+
+# AI 温度 (0.0-1.0)
+AI_TEMPERATURE=0.7
+
+# 自动引用
+AUTO_QUOTE=off
+QUOTE_INTERVAL_SECONDS=30.0
+QUOTE_MAX_LEN=200
+
+# ----------------------------------------
+# 内容审核配置 (双机拦截)
+# ----------------------------------------
+AUDIT_ENABLED=False
+AUDIT_MODE=local
+AUDIT_SERVERS=http://127.0.0.1:8000
+AUDIT_MAX_RETRIES=3
+AUDIT_TEMPERATURE=0.0
+AUDIT_GUIDE_STRENGTH=0.7
+KB_REFRESH=on
+TG_AUDIT_ENABLED=False
+WA_AUDIT_ENABLED=False
+SENSITIVE_DICT_VERSION=v1
+AUDIT_ACTIVE_START=
+AUDIT_ACTIVE_END=

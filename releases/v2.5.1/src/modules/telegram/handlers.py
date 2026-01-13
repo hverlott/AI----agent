@@ -39,7 +39,12 @@ def register_handlers(app):
 
         # Load config
         config = app.cfg.load_config()
-        keywords = app.cfg.load_keywords()
+        # Optimize: Use cached keywords from app initialization
+        keywords = getattr(app, 'keywords', [])
+        if not keywords:
+             # Fallback if not initialized or empty (reload to be safe or just empty)
+             keywords = app.cfg.load_keywords()
+             
         orch_enabled = bool(config.get('CONV_ORCHESTRATION', False))
 
         if orch_enabled:
@@ -57,7 +62,7 @@ def register_handlers(app):
             selected_ids = load_selected_group_ids(app.cfg)
             chat_id = getattr(event, 'chat_id', None)
             
-            # Sender Name Filter
+            # Sender Name Filter (Legacy Config Support)
             if bool(config.get('SENDER_FILTER_ENABLED', False)):
                 raw = str(config.get('SENDER_NAME_FILTER_KEYWORDS', '') or '')
                 name_keys = [k.strip() for k in raw.split(',') if k.strip()]
@@ -76,10 +81,12 @@ def register_handlers(app):
                 app.logger.log_group(f"🔕 群聊回复已关闭，忽略消息 [{name}]: {msg}")
                 return
 
-            if selected_ids:
-                if chat_id is None or int(chat_id) not in selected_ids:
-                    app.logger.log_group(f"🛑 群聊 [{chat_id}] 不在白名单，跳过回复")
-                    return
+            # Requirement 2: Non-whitelist groups should keep existing keyword trigger mechanism.
+            # So we do NOT return here if not in whitelist.
+            # if selected_ids:
+            #    if chat_id is None or int(chat_id) not in selected_ids:
+            #        app.logger.log_group(f"🛑 群聊 [{chat_id}] 不在白名单，跳过回复")
+            #        return
 
         # --- Should Reply? ---
         should_reply = False
@@ -87,7 +94,18 @@ def register_handlers(app):
             should_reply = True
             app.logger.log_private(f"[trace:{trace_id}] 📩 收到私聊 [{name}]: {msg}")
         elif event.is_group:
-            if event.mentioned:
+            # Check whitelist status
+            is_whitelisted = False
+            if chat_id and selected_ids and int(chat_id) in selected_ids:
+                is_whitelisted = True
+                app.logger.log_group(f"WHITELIST_CHECK pass chat_id={chat_id}")
+            else:
+                app.logger.log_group(f"WHITELIST_CHECK fail chat_id={chat_id} selected_count={len(selected_ids)}")
+
+            if is_whitelisted:
+                should_reply = True
+                app.logger.log_group(f"✅ 白名单群组自动触发 [{name}]: {msg}")
+            elif event.mentioned:
                 should_reply = True
                 app.logger.log_group(f"📩 群聊被 @ [{name}]: {msg}")
             elif keywords:
@@ -151,21 +169,33 @@ def register_handlers(app):
 
             # KB Only Logic
             if config.get('KB_ONLY_REPLY', False):
-                # (Simplified KB Only Logic from main.py)
                 kb_hits = app.kb_engine.retrieve_kb_context(msg, kb_items, topn=3)
                 reply = ""
                 if kb_hits:
                     context_text = "\n\n".join([f"--- Doc {i+1} ---\n{it.get('content','')}" for i, it in enumerate(kb_hits)])
-                    # Improved System Prompt for Natural Tone
-                    sys_prompt = (
-                        "你是一个专业的客服助手。请根据以下知识库内容回答用户的问题。\n"
-                        "要求：\n"
-                        "1. 语气自然、亲切，不要机械地复述文档。\n"
-                        "2. 即使是引用文档，也要用口语化的方式表达（例如：'根据我们的规定...' 改为 '我查了一下，流程是这样的...'）。\n"
-                        "3. 如果知识库中没有相关信息，请直接回复: NO_ANSWER_FOUND\n"
-                        "\n"
-                        f"【参考资料】\n{context_text}"
-                    )
+                    conv_mode = str(config.get('CONVERSATION_MODE', 'ai_visible') or 'ai_visible').lower()
+                    if conv_mode == 'human_simulated':
+                        sys_prompt = (
+                            "你是一个专业但语气自然的智能助手，负责基于知识库内容回答用户问题。\n"
+                            "要求：\n"
+                            "1. 语气可以亲切、口语化，但仍要保证信息准确。\n"
+                            "2. 可以适度拟人表达，但注意不要夸张或虚构事实。\n"
+                            "3. 如果知识库中没有相关信息，请直接回复: NO_ANSWER_FOUND\n"
+                            "\n"
+                            f"【参考资料】\n{context_text}"
+                        )
+                    else:
+                        sys_prompt = (
+                            "你是企业官方的技术支持客服助手，请根据以下知识库内容准确回答用户的问题。\n"
+                            "要求：\n"
+                            "1. 使用专业、说明型表达，语气正式、克制。\n"
+                            "2. 仅围绕当前问题给出结论和必要说明，禁止扩展额外场景或泛泛建议。\n"
+                            "3. 避免使用“我查了一下”“如果您需要了解更多”“我可以再给您详细说明”等口语化引导语。\n"
+                            "4. 尽量控制在200字以内，禁止重复或无关铺垫。\n"
+                            "5. 如果知识库中没有相关信息，请直接回复: NO_ANSWER_FOUND\n"
+                            "\n"
+                            f"【参考资料】\n{context_text}"
+                        )
                     
                     try:
                         ai = app.ai_manager.get_client()

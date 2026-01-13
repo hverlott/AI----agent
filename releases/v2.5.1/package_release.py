@@ -21,6 +21,7 @@ def create_release_package():
         "config.txt",
         "prompt.txt",
         "README.md",
+        "RELEASE_NOTES.md",
         "ADMIN_README.md",
         "DEPLOYMENT_GUIDE.md"
     ]

@@ -1,10 +1,13 @@
 @echo off
+chcp 65001 >nul
+setlocal EnableExtensions
 set "SAAS_ROOT=%~dp0"
 set "SAAS_DATA_DIR=%SAAS_ROOT%data"
 set "LATEST_VERSION=v2.5.1"
 
 echo Starting SaaS AI Bot System (Version %LATEST_VERSION%)...
 echo Data Directory: %SAAS_DATA_DIR%
+echo.
 
 if not exist "%SAAS_ROOT%releases\%LATEST_VERSION%" (
     echo Error: Version %LATEST_VERSION% not found in releases folder.

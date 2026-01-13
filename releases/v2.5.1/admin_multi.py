@@ -14,6 +14,7 @@ import asyncio
 import shutil
 import base64
 import pytz
+import traceback
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -22,7 +23,8 @@ from database import db
 from auth_core import AuthManager
 
 import pandas as pd
-from src.modules.telegram.utils import get_session_user
+from src.modules.telegram.utils import get_session_user, ensure_session_meta, check_session_validity
+from src.modules.telegram.whitelist_manager import WhitelistManager
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.append(str(BASE_DIR))
@@ -554,6 +556,9 @@ I18N = {
         "tg_bc_send_btn": "🚀 开始群发",
         "tg_bc_records": "📋 群发记录",
         "tg_bc_clear": "清空记录",
+        "tg_bc_no_cache": "⚠️ 未找到群组缓存",
+        "tg_bc_fail_prefix": "❌ 群发失败: {}",
+        "tg_bc_success_fmt": "✅ 群发完成: 成功 {}, 失败 {}",
 
         "tg_log_header": "📜 运行日志",
         "tg_log_sys": "系统日志",
@@ -2190,7 +2195,7 @@ def save_kb_db(db):
     with open(KB_DB_FILE, "w", encoding="utf-8") as f:
         json.dump(db, f, ensure_ascii=False, indent=2)
 
-def extract_content_from_upload(upload, filename):
+def extract_content_from_upload(upload, filename, src_path=None):
     name_lower = (filename or "").lower()
     content = ""
     parse_note = ""
@@ -2202,7 +2207,7 @@ def extract_content_from_upload(upload, filename):
     elif name_lower.endswith(".pdf"):
         try:
             import pypdf
-            reader = pypdf.PdfReader(upload)
+            reader = pypdf.PdfReader(src_path or upload)
             pages = []
             for i in range(len(reader.pages)):
                 text = reader.pages[i].extract_text()
@@ -2244,6 +2249,35 @@ def extract_content_from_upload(upload, filename):
             content = ""
         parse_note = "unknown_format"
     return content, parse_note
+
+def _chunk_text_linear(text, chunk_size=8000, overlap=800):
+    res = []
+    if not text:
+        return res
+    start = 0
+    n = len(text)
+    while start < n:
+        end = min(n, start + chunk_size)
+        res.append(text[start:end])
+        if end >= n:
+            break
+        start = max(end - overlap, start + 1)
+    return res
+
+def _chunk_pages_into_groups(pages, pages_per_chunk=5, overlap_pages=1):
+    chunks = []
+    if not pages:
+        return chunks
+    i = 0
+    total = len(pages)
+    while i < total:
+        j = min(total, i + pages_per_chunk)
+        group = pages[i:j]
+        chunks.append((i + 1, j, "\n\n".join(group)))
+        if j >= total:
+            break
+        i = max(j - overlap_pages, i + 1)
+    return chunks
 
 def _get_tenant_kb_dirs(tenant_id):
     """获取租户专属的知识库目录"""
@@ -2321,6 +2355,7 @@ def render_kb_panel():
                         if st.button(tr("common_delete"), key=del_key):
                             db.delete_kb_item(it['id'])
                             log_admin_op("kb_delete", {"id": it.get('id'), "title": it.get('title')})
+                            log_kb_op(tenant_id, "kb_delete", {"id": it.get('id'), "title": it.get('title')})
                             st.success(tr("common_success"))
                             st.rerun()
                         
@@ -2354,6 +2389,7 @@ def render_kb_panel():
                     }
                     db.add_kb_item(item)
                     log_admin_op("kb_add", {"id": new_id, "title": title.strip()})
+                    log_kb_op(tenant_id, "kb_add", {"id": new_id, "title": title.strip()})
                     st.session_state["kb_text_success"] = f"{tr('common_success')}: {title}"
                     st.rerun()
 
@@ -2398,6 +2434,7 @@ def render_kb_panel():
                         }
                         db.update_kb_item(edit_id, updates)
                         log_admin_op("kb_update", {"id": edit_id, "title": etitle.strip()})
+                        log_kb_op(tenant_id, "kb_update", {"id": edit_id, "title": etitle.strip()})
                         st.success(tr("common_success"))
                         del st.session_state["kb_edit_id"]
                         del st.session_state["kb_edit_item"]
@@ -2420,7 +2457,7 @@ def render_kb_panel():
                 
                 with open(dest_path, "wb") as f:
                     f.write(uploaded.getvalue())
-                content, note = extract_content_from_upload(uploaded, safe_name)
+                content, note = extract_content_from_upload(uploaded, safe_name, src_path=dest_path if safe_name.lower().endswith(".pdf") else None)
                 st.info(f"Parse Note: {note or 'ok'}")
                 
                 title = st.text_input(tr("kb_input_title"), value=os.path.splitext(safe_name)[0], key="kb_import_title")
@@ -2429,25 +2466,103 @@ def render_kb_panel():
                 preview = st.text_area(tr("kb_import_preview"), value=content, height=200, key="kb_import_preview_area")
                 
                 if st.button(tr("kb_import_save"), type="primary", key="kb_import_save_btn"):
-                    new_id = datetime.now().strftime("%Y%m%d%H%M%S%f")
                     now_iso = datetime.now().isoformat()
                     tags_list = [t.strip() for t in tags.split(",") if t.strip()]
-                    tags_str = json.dumps(tags_list, ensure_ascii=False)
-                    
-                    item = {
-                        "id": new_id,
-                        "tenant_id": tenant_id,
-                        "title": title.strip(),
-                        "category": category.strip(),
-                        "tags": tags_str,
-                        "content": preview.strip(),
-                        "source_file": os.path.relpath(dest_path, BASE_DIR),
-                        "created_at": now_iso,
-                        "updated_at": now_iso
-                    }
-                    db.add_kb_item(item)
-                    log_admin_op("kb_import", {"id": new_id, "title": title.strip(), "source_file": safe_name})
-                    st.session_state["kb_import_success"] = f"{tr('common_success')}: {title}"
+                    rel_src = os.path.relpath(dest_path, BASE_DIR)
+
+                    try:
+                        prev = db.execute_query(
+                            "SELECT COUNT(*) AS cnt FROM knowledge_base WHERE tenant_id = ? AND source_file = ?",
+                            (tenant_id, rel_src)
+                        )
+                        prev_cnt = int((prev[0] or {}).get("cnt", 0)) if prev else 0
+                    except Exception:
+                        prev_cnt = 0
+
+                    try:
+                        db.execute_update(
+                            "DELETE FROM knowledge_base WHERE tenant_id = ? AND source_file = ?",
+                            (tenant_id, rel_src)
+                        )
+                        if prev_cnt > 0:
+                            log_kb_op(tenant_id, "kb_import_overwrite", {"source_file": safe_name, "deleted": prev_cnt})
+                    except Exception:
+                        pass
+
+                    created = 0
+                    base_title = title.strip() or os.path.splitext(safe_name)[0]
+                    common_tags = list(tags_list)
+                    if safe_name.lower().endswith(".pdf"):
+                        try:
+                            import pypdf
+                            reader = pypdf.PdfReader(dest_path)
+                            page_texts = []
+                            for i in range(len(reader.pages)):
+                                t = reader.pages[i].extract_text() or ""
+                                if t.strip():
+                                    page_texts.append(f"# PDF Page {i+1}\n{t}")
+                                else:
+                                    page_texts.append(f"# PDF Page {i+1}\n")
+                            groups = _chunk_pages_into_groups(page_texts, pages_per_chunk=5, overlap_pages=1)
+                            for idx, (p_start, p_end, text_chunk) in enumerate(groups, start=1):
+                                new_id = datetime.now().strftime("%Y%m%d%H%M%S%f")
+                                chunk_title = f"{base_title} p{p_start}-{p_end} (Part {idx})"
+                                part_tags = common_tags + ["pdf", "chunk"]
+                                tags_str = json.dumps(part_tags, ensure_ascii=False)
+                                item = {
+                                    "id": new_id,
+                                    "tenant_id": tenant_id,
+                                    "title": chunk_title,
+                                    "category": category.strip(),
+                                    "tags": tags_str,
+                                    "content": text_chunk.strip(),
+                                    "source_file": rel_src,
+                                    "created_at": now_iso,
+                                    "updated_at": now_iso
+                                }
+                                db.add_kb_item(item)
+                                created += 1
+                        except Exception as e:
+                            new_id = datetime.now().strftime("%Y%m%d%H%M%S%f")
+                            tags_str = json.dumps(common_tags + ["pdf","chunk"], ensure_ascii=False)
+                            item = {
+                                "id": new_id,
+                                "tenant_id": tenant_id,
+                                "title": base_title,
+                                "category": category.strip(),
+                                "tags": tags_str,
+                                "content": preview.strip(),
+                                "source_file": rel_src,
+                                "created_at": now_iso,
+                                "updated_at": now_iso
+                            }
+                            db.add_kb_item(item)
+                            created = 1
+                    else:
+                        chunks = _chunk_text_linear(preview.strip(), chunk_size=8000, overlap=800)
+                        if not chunks:
+                            chunks = [preview.strip()]
+                        for idx, text_chunk in enumerate(chunks, start=1):
+                            new_id = datetime.now().strftime("%Y%m%d%H%M%S%f")
+                            chunk_title = f"{base_title} (Part {idx})" if len(chunks) > 1 else base_title
+                            tags_str = json.dumps(common_tags + (["chunk"] if len(chunks) > 1 else []), ensure_ascii=False)
+                            item = {
+                                "id": new_id,
+                                "tenant_id": tenant_id,
+                                "title": chunk_title,
+                                "category": category.strip(),
+                                "tags": tags_str,
+                                "content": text_chunk,
+                                "source_file": rel_src,
+                                "created_at": now_iso,
+                                "updated_at": now_iso
+                            }
+                            db.add_kb_item(item)
+                            created += 1
+
+                    log_admin_op("kb_import", {"title": base_title, "source_file": safe_name, "created_parts": created})
+                    log_kb_op(tenant_id, "kb_import", {"title": base_title, "source_file": safe_name, "created_parts": created})
+                    st.session_state["kb_import_success"] = f"{tr('common_success')}: {base_title} (parts={created})"
                     st.rerun()
 
     with tabs[2]:
@@ -2895,7 +3010,7 @@ def render_telegram_panel():
     # Tab 界面（使用 radio 避免按钮触发后回到默认页）
     tab_map = {
         tr("tg_tab_config"): render_telegram_config,
-        tr("tg_tab_broadcast"): render_telegram_broadcast,
+        tr("tg_tab_broadcast"): lambda: render_telegram_broadcast(selected_api_conf, selected_acc),
         tr("tg_tab_logs"): render_telegram_logs,
         tr("tg_tab_stats"): render_telegram_stats,
         tr("tg_tab_flow"): render_telegram_flow
@@ -3266,6 +3381,18 @@ def render_telegram_config():
                 key="tg_audit_servers"
             )
 
+    # Tenant Login Configuration
+    with st.expander("🔐 登录配置", expanded=False):
+        _saved_cfg_raw = read_tenant_file("platforms/telegram/config.txt", "")
+        _saved_bot_token = ""
+        for _line in _saved_cfg_raw.splitlines():
+            s = _line.strip()
+            if s.startswith("BOT_TOKEN="):
+                _saved_bot_token = s.split("=",1)[1].strip()
+                break
+        bot_token = st.text_input("Bot Token（仅机器人账户使用）", value=_saved_bot_token, placeholder="123456:ABC-DEF...", key="tenant_bot_token")
+        st.caption("提示：仅用于 Bot 账户登录。User 账户请在后台通过手机号登录生成 Session。")
+
     if st.button(tr("tg_cfg_save_all"), width="stretch"):
         new_config = f"""# ========================================
 # Telegram AI Bot - 功能配置
@@ -3318,6 +3445,11 @@ AUDIT_SERVERS={audit_servers}
 AUDIT_MAX_RETRIES={audit_max_retries}
 AUDIT_TEMPERATURE={audit_temperature:.1f}
 AUDIT_GUIDE_STRENGTH={guide_strength:.1f}
+
+# ----------------------------------------
+# 登录配置（仅Bot账号）
+# ----------------------------------------
+BOT_TOKEN={bot_token}
 """
         write_tenant_file("platforms/telegram/config.txt", new_config)
         log_admin_op("tg_config_save", {"tenant": tenant_id, "AUTO_QUOTE": auto_quote})
@@ -3329,7 +3461,9 @@ AUDIT_GUIDE_STRENGTH={guide_strength:.1f}
     with st.expander("🔑 " + tr("tg_cfg_audit_kw"), expanded=False):
         # st.markdown(tr("tg_cfg_audit_kw")) # Moved to expander title
         from keyword_manager import KeywordManager
-        km = KeywordManager()
+        _tenant_for_kw = st.session_state.get('tenant', 'default')
+        _kw_path = os.path.join(str(DATA_DIR), "tenants", _tenant_for_kw, "platforms", "telegram", "keywords.json")
+        km = KeywordManager(_kw_path)
         role_kw = st.session_state.get('user_role', 'SuperAdmin')
         can_edit_kw = (role_kw == 'Auditor' or role_kw == 'SuperAdmin')
         kwc1, kwc2 = st.columns(2)
@@ -3469,33 +3603,69 @@ AUDIT_GUIDE_STRENGTH={guide_strength:.1f}
     st.divider()
 
     st.subheader(tr("tg_whitelist_header"))
-    groups = load_tg_group_cache()
+    st.info("ℹ️ 说明：白名单中的群组将自动触发回复（无需关键词）。非白名单群组仅在触发关键词或被 @ 时回复。")
+    groups = load_tg_group_cache_tenant(tenant_id)
     if not groups:
-        st.info("No group cache found. Run bot first.")
-        return
+        st.warning("No group cache found. Please sync groups first.")
+        if st.button("🔄 " + "同步群组列表 (Sync Groups)", key="tg_sync_groups_btn"):
+            with st.spinner("Syncing groups from Telegram..."):
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    success, msg = loop.run_until_complete(sync_telegram_groups_tenant(tenant_id))
+                    loop.close()
+                    if success:
+                        st.success(msg)
+                        st.rerun()
+                    else:
+                        st.error(f"Sync failed: {msg}")
+                except Exception as e:
+                    st.error(f"Sync error: {e}")
+    else:
+        selected_ids = load_tg_selected_group_ids_tenant(tenant_id)
+        # Ensure groups have IDs and handle potential formatting errors
+        valid_groups = [g for g in groups if g.get("id")]
+        options = [format_group_label(item) for item in valid_groups]
+        label_to_id = {format_group_label(item): item["id"] for item in valid_groups}
+        
+        # Calculate defaults based on currently saved IDs
+        default_labels = [label for label in options if label_to_id.get(label) in selected_ids]
+        
+        # Use session state to manage selection if not already set, or rely on default
+        # Note: default is only used when key is not in session_state
+        
+        selected_labels = st.multiselect(
+            tr("tg_whitelist_select"),
+            options,
+            default=default_labels,
+            key="tg_whitelist_select"
+        )
+        
+        if st.button(tr("tg_whitelist_save"), key="save_tg_whitelist", width="stretch"):
+            # Safe retrieval of IDs
+            new_ids = []
+            for label in selected_labels:
+                if label in label_to_id:
+                    new_ids.append(label_to_id[label])
+            
+            save_tg_selected_group_ids_tenant(tenant_id, new_ids)
+            log_admin_op("tg_whitelist_save", {"count": len(new_ids)})
+            st.success(tr("common_success"))
+            # Force update session state to reflect saved state on next run (optional)
+            st.rerun()
 
-    selected_ids = load_tg_selected_group_ids()
-    options = [format_group_label(item) for item in groups]
-    label_to_id = {format_group_label(item): item["id"] for item in groups}
-    default_labels = [label for label in options if label_to_id.get(label) in selected_ids]
-
-    selected_labels = st.multiselect(
-        tr("tg_whitelist_select"),
-        options,
-        default=default_labels,
-        key="tg_whitelist_select"
-    )
-    if st.button(tr("tg_whitelist_save"), key="save_tg_whitelist", width="stretch"):
-        save_tg_selected_group_ids([label_to_id[label] for label in selected_labels])
-        log_admin_op("tg_whitelist_save", {"count": len(selected_labels)})
-        st.success(tr("common_success"))
+    st.divider()
 
 # ==================== 租户级工具函数 ====================
 def _get_tenant_tg_paths(tenant_id):
     """获取租户 Telegram 相关路径"""
     base = os.path.join(str(DATA_DIR), "tenants", tenant_id, "platforms", "telegram")
+    
+    # Requirement: Cache file should be stored in project directory /cache/group_whitelist/
+    cache_base = os.path.join(str(BASE_DIR), "cache", "group_whitelist")
+    
     return {
-        "group_cache": os.path.join(base, "group_cache.json"),
+        "group_cache": os.path.join(cache_base, f"{tenant_id}_group_cache.json"),
         "selected_groups": os.path.join(base, "selected_groups.json"),
         "logs_dir": os.path.join(base, "logs"),
         "broadcast_log": os.path.join(base, "logs", "broadcast.log"),
@@ -3504,6 +3674,16 @@ def _get_tenant_tg_paths(tenant_id):
 
 def load_tg_group_cache_tenant(tenant_id):
     path = _get_tenant_tg_paths(tenant_id)["group_cache"]
+    
+    def _init_empty_group_cache():
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({}, f)
+            log_admin_op("group_cache_init", {"tenant": tenant_id, "status": "initialized_empty"})
+        except Exception as e:
+            print(f"Failed to init empty cache: {e}")
+
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -3512,41 +3692,105 @@ def load_tg_group_cache_tenant(tenant_id):
             if isinstance(data, dict):
                 return [{"id": k, **v} for k, v in data.items()]
             return data
-        except:
+        except Exception as e:
+            # Corrupted cache
+            timestamp = datetime.now().isoformat()
+            print(f"[{timestamp}] Error loading group cache: {e}")
+            log_admin_op("group_cache_error", {"tenant": tenant_id, "error": str(e)})
+            _init_empty_group_cache()
             return []
-    # 兼容旧路径
-    if tenant_id == "default" and os.path.exists("platforms/telegram/group_cache.json"):
-        try:
-            with open("platforms/telegram/group_cache.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if isinstance(data, dict):
-                return [{"id": k, **v} for k, v in data.items()]
-        except: pass
+    else:
+        # No cache found - Auto init
+        timestamp = datetime.now().isoformat()
+        print(f"[{timestamp}] No group cache found, initializing empty.")
+        _init_empty_group_cache()
+        return []
+
+    # 兼容旧路径 (Legacy support logic moved/removed as we prioritize new structure)
+    # If we really need fallback, we can keep it, but the requirement stresses auto-init.
     return []
 
 def load_tg_selected_group_ids_tenant(tenant_id):
-    path = _get_tenant_tg_paths(tenant_id)["selected_groups"]
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                return set(json.load(f).get("selected_ids", []))
-        except:
-            return set()
-    # 兼容旧路径
-    if tenant_id == "default" and os.path.exists("platforms/telegram/selected_groups.json"):
-        try:
-            with open("platforms/telegram/selected_groups.json", "r", encoding="utf-8") as f:
-                return set(json.load(f).get("selected_ids", []))
-        except: pass
-    return set()
+    """Load whitelist using new Manager"""
+    try:
+        wm = WhitelistManager(tenant_id)
+        ids = wm.get_whitelist_ids()
+        out = set()
+        for x in ids:
+            try:
+                out.add(int(x))
+            except Exception:
+                continue
+        return out
+    except Exception as e:
+        print(f"Error loading whitelist: {e}")
+        return set()
 
 def save_tg_selected_group_ids_tenant(tenant_id, ids):
-    path = _get_tenant_tg_paths(tenant_id)["selected_groups"]
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump({"selected_ids": list(ids)}, f)
+    """Save whitelist using new Manager"""
+    try:
+        wm = WhitelistManager(tenant_id)
+        wm.update_whitelist(ids)
+    except Exception as e:
+        print(f"Error saving whitelist: {e}")
 
-def render_telegram_broadcast():
+async def sync_telegram_groups_tenant(tenant_id):
+    """Sync telegram groups for tenant"""
+    try:
+        from telethon import TelegramClient
+        import glob
+        
+        # Find session
+        s_dir = f"data/tenants/{tenant_id}/sessions"
+        if not os.path.exists(s_dir):
+            if tenant_id == 'default': s_dir = "."
+            else: return False, "No sessions directory found."
+            
+        sessions = glob.glob(os.path.join(s_dir, "*.session"))
+        if not sessions:
+            return False, "No session files found. Please login first."
+            
+        # Use the first session found
+        s_path = sessions[0]
+        # Remove .session extension for Telethon
+        s_path_root = s_path[:-8]
+        
+        api_id = os.getenv("TELEGRAM_API_ID")
+        api_hash = os.getenv("TELEGRAM_API_HASH")
+        
+        if not api_id or not api_hash:
+             return False, "API ID/HASH not set in environment."
+             
+        async with TelegramClient(s_path_root, int(api_id), api_hash) as client:
+            # client.connect() is called by context manager
+            if not await client.is_user_authorized():
+                 return False, f"Session {os.path.basename(s_path)} not authorized."
+            
+            dialogs = await client.get_dialogs()
+            groups = []
+            for d in dialogs:
+                if d.is_group or d.is_channel:
+                    groups.append({
+                        "id": d.id,
+                        "title": d.title,
+                        "type": "channel" if d.is_channel else "group",
+                        "username": getattr(d.entity, 'username', None)
+                    })
+            
+            # Save to cache
+            path = _get_tenant_tg_paths(tenant_id)["group_cache"]
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            data = {str(g["id"]): g for g in groups}
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+                
+            return True, f"Successfully synced {len(groups)} groups/channels."
+            
+    except Exception as e:
+        return False, str(e)
+
+
+def render_telegram_broadcast(active_api_conf=None, active_acc_conf=None):
     """Telegram 群发界面 (多租户适配版)"""
     st.subheader(tr("tg_bc_header"))
     
@@ -3559,7 +3803,9 @@ def render_telegram_broadcast():
     with st.expander("👤 账号选择 (Account Selection)", expanded=True):
         # 逻辑与 Panel 类似，但这里只选择用于发送的 Session
         import json
-        acc_db_path = f"data/tenants/{tenant_id}/accounts.json"
+        import glob
+        
+        acc_db_path = os.path.join(str(DATA_DIR), "tenants", tenant_id, "accounts.json")
         tg_accounts = []
         if os.path.exists(acc_db_path):
             try:
@@ -3568,25 +3814,73 @@ def render_telegram_broadcast():
                 tg_accounts = [a for a in acc_db.get("accounts", []) if a.get("platform") == "Telegram"]
             except: pass
         
-        selected_session_file = "userbot_session.session"
-        # 如果有多个账号，提供选择
-        if tg_accounts:
-            account_options = {}
+        # Fallback: Scan for session files directly
+        s_dir = os.path.join(str(DATA_DIR), "tenants", tenant_id, "sessions")
+        if not os.path.exists(s_dir) and tenant_id == 'default': s_dir = "."
+        
+        session_files = []
+        if os.path.exists(s_dir):
+            session_files = glob.glob(os.path.join(s_dir, "*.session"))
+            
+        # Map session filenames to accounts
+        account_options = {}
+        
+        # 1. Add from accounts.json
+        for a in tg_accounts:
+            label = f"{a.get('username', '未命名')} ({a.get('session_file', 'No Session')})"
+            account_options[label] = a.get("session_file")
+            
+        # 2. Add orphan session files
+        for s_path in session_files:
+            fname = os.path.basename(s_path)
+            # Check if this session is already covered by an account
+            is_covered = False
             for a in tg_accounts:
-                label = f"{a.get('username', '未命名')} ({a.get('session_file', 'No Session')})"
-                account_options[label] = a
-            c_sel, _ = st.columns([1, 2])
+                if a.get("session_file") == fname:
+                    is_covered = True
+                    break
+            
+            if not is_covered:
+                label = f"Unknown ({fname})"
+                account_options[label] = fname
+        
+        selected_session_file = None
+        
+        # Determine default index based on active_acc_conf
+        default_idx = 0
+        if active_acc_conf:
+             target_label = f"{active_acc_conf.get('username', '未命名')} ({active_acc_conf.get('session_file', 'No Session')})"
+             keys = list(account_options.keys())
+             if target_label in keys:
+                 default_idx = keys.index(target_label)
+        
+        if account_options:
+            c_sel, c_api = st.columns([1, 1])
             with c_sel:
-                sel_label = st.selectbox("👉 选择发送账号", list(account_options.keys()), key="tg_bc_acc_sel")
+                sel_label = st.selectbox(
+                    "👉 选择发送账号", 
+                    list(account_options.keys()), 
+                    index=default_idx, 
+                    key="tg_bc_acc_sel"
+                )
                 if sel_label:
-                    s_file = account_options[sel_label].get("session_file")
-                    if s_file: selected_session_file = s_file
+                    selected_session_file = account_options[sel_label]
+            
+            with c_api:
+                # Display current API config info
+                if active_api_conf:
+                    st.info(f"🤖 API: {active_api_conf.get('name', 'Unnamed')} (ID: {active_api_conf.get('api_id')})")
+                else:
+                    st.warning("⚠️ 未检测到 Run Config 中的 API 配置")
         else:
             st.warning("⚠️ 当前租户未配置 Telegram 账号，请先去【账号管理】添加。")
 
     with st.expander("👥 群组选择 (Group Selection)", expanded=True):
         groups = load_tg_group_cache_tenant(tenant_id)
-        if not groups:
+        # Ensure groups are valid
+        valid_groups = [g for g in groups if g.get("id")]
+        
+        if not valid_groups:
             st.info(tr("tg_bc_no_cache"))
             # 尝试提示用户去哪里加载缓存
             st.markdown("💡 *请先在【功能面板 -> 启动/停止】中运行一次机器人以获取群组列表。*")
@@ -3606,16 +3900,19 @@ def render_telegram_broadcast():
 
             if st.button(tr("tg_bc_load_btn"), key="tg_load_groups", width="stretch"):
                 if mode == "tg_bc_mode_whitelist":
-                    filtered = [g for g in groups if g["id"] in selected_ids]
+                    filtered = [g for g in valid_groups if g["id"] in selected_ids]
                 elif mode == "tg_bc_mode_non_whitelist":
-                    filtered = [g for g in groups if g["id"] not in selected_ids]
+                    filtered = [g for g in valid_groups if g["id"] not in selected_ids]
                 else:
-                    filtered = groups
+                    filtered = valid_groups
                 st.session_state.tg_broadcast_groups = filtered
                 st.session_state.tg_broadcast_selected = [format_group_label(g) for g in filtered]
                 st.rerun()
 
             loaded_groups = st.session_state.get("tg_broadcast_groups", [])
+            # Re-validate loaded groups just in case
+            loaded_groups = [g for g in loaded_groups if g.get("id")]
+            
             if loaded_groups:
                 st.divider()
                 st.markdown(f"##### ✅ 已加载群组 ({len(loaded_groups)})")
@@ -3641,7 +3938,10 @@ def render_telegram_broadcast():
                 if "tg_broadcast_selected" not in st.session_state:
                     multiselect_kwargs["default"] = st.session_state.get("tg_broadcast_selected", [])
                 selected_labels = st.multiselect(tr("tg_bc_select_label"), **multiselect_kwargs)
-                selected_chat_ids = [label_to_id[label] for label in selected_labels]
+                selected_chat_ids = []
+                for label in selected_labels:
+                    if label in label_to_id:
+                        selected_chat_ids.append(label_to_id[label])
             else:
                  if st.session_state.get("tg_broadcast_groups") is not None: # Means tried to load but empty
                      st.info("⚠️ 根据当前模式筛选后，没有符合条件的群组。")
@@ -3666,14 +3966,26 @@ def render_telegram_broadcast():
             )
 
             if st.button(tr("tg_bc_send_btn"), type="primary", width="stretch", key="tg_broadcast_send"):
-                # Logic remains same, omitted for brevity in search block matching, 
-                # but since I am replacing the whole function, I must include the logic.
-                # Re-inserting logic...
+                if 'selected_chat_ids' not in locals():
+                    selected_chat_ids = []
+
                 if not selected_chat_ids:
                     st.error(tr("tg_bc_err_no_group"))
                 elif not message.strip():
                     st.error(tr("tg_bc_err_no_content"))
                 else:
+                    if not active_api_conf or not active_api_conf.get("api_id") or not active_api_conf.get("api_hash"):
+                        st.error("未选择或未应用 API 配置，请在控制面板先应用一套 Telegram API。")
+                        return
+                    if not selected_session_file:
+                        st.error("未选择发送账号 Session 文件，请在上方选择一个已登录的账号。")
+                        return
+
+                    try:
+                        log_admin_op("broadcast_request", {"tenant": tenant_id, "session": selected_session_file, "groups": len(selected_chat_ids)})
+                    except Exception:
+                        pass
+
                     progress_bar = st.progress(0.0)
                     status_text = st.empty()
 
@@ -3685,55 +3997,89 @@ def render_telegram_broadcast():
                     asyncio.set_event_loop(loop)
                     try:
                         from telethon import TelegramClient
-                        
-                        s_dir = f"data/tenants/{tenant_id}/sessions"
-                        if not os.path.exists(s_dir) and tenant_id == 'default': s_dir = "."
-                        s_path = os.path.join(s_dir, selected_session_file)
-                        if s_path.endswith(".session"): s_path = s_path[:-8]
-                        
-                        api_id = os.getenv("TELEGRAM_API_ID")
-                        api_hash = os.getenv("TELEGRAM_API_HASH")
-                        
+
+                        s_dir = os.path.join(str(DATA_DIR), "tenants", tenant_id, "sessions")
+                        if not os.path.exists(s_dir) and tenant_id == 'default':
+                            s_dir = "."
+                        s_path_full = os.path.join(s_dir, selected_session_file)
+                        if not os.path.isfile(s_path_full):
+                            st.error(f"未找到会话文件: {selected_session_file}，请先在登录面板完成登录。")
+                            return
+                        s_path = s_path_full
+                        if s_path.endswith(".session"):
+                            s_path = s_path[:-8]
+
+                        api_id = active_api_conf.get("api_id")
+                        api_hash = active_api_conf.get("api_hash")
+
                         client = TelegramClient(s_path, int(api_id), api_hash, loop=loop)
-                        
+
                         async def _broadcast_task():
                             await client.connect()
                             if not await client.is_user_authorized():
                                 return [], 0, 0, "Client not authorized"
-                            
+
                             recs = []
                             suc = 0
                             fail = 0
                             total = len(selected_chat_ids)
-                            
+
                             for idx, cid in enumerate(selected_chat_ids):
                                 title = str(cid)
                                 for g in loaded_groups:
-                                    if g["id"] == cid:
-                                        title = g["title"]
+                                    if g.get("id") == cid:
+                                        title = g.get("title", str(cid))
                                         break
-                                
+
                                 try:
                                     await client.send_message(int(cid), message)
                                     recs.append(f"SUCCESS -> {title} ({cid})")
                                     suc += 1
                                 except Exception as e:
-                                    recs.append(f"FAILED -> {title} ({cid}): {e}")
+                                    import traceback
+                                    tb = traceback.format_exc()
+                                    err_type = type(e).__name__
+                                    from telethon.errors import FloodWaitError, PeerFloodError, ChatAdminRequiredError, ChatWriteForbiddenError, ChannelPrivateError, UserPrivacyRestrictedError, RPCError
+                                    if isinstance(e, FloodWaitError):
+                                        recs.append(f"FAILED[FloodWait] -> {title} ({cid}): wait {e.seconds}s | {str(e)}")
+                                    elif isinstance(e, PeerFloodError):
+                                        recs.append(f"FAILED[PeerFlood] -> {title} ({cid}): {str(e)}")
+                                    elif isinstance(e, ChatAdminRequiredError):
+                                        recs.append(f"FAILED[AdminRequired] -> {title} ({cid}): {str(e)}")
+                                    elif isinstance(e, ChatWriteForbiddenError):
+                                        recs.append(f"FAILED[WriteForbidden] -> {title} ({cid}): {str(e)}")
+                                    elif isinstance(e, ChannelPrivateError):
+                                        recs.append(f"FAILED[ChannelPrivate] -> {title} ({cid}): {str(e)}")
+                                    elif isinstance(e, UserPrivacyRestrictedError):
+                                        recs.append(f"FAILED[PrivacyRestricted] -> {title} ({cid}): {str(e)}")
+                                    elif isinstance(e, RPCError):
+                                        recs.append(f"FAILED[RPCError] -> {title} ({cid}): code={getattr(e, 'code', 'N/A')} message={getattr(e, 'message', str(e))}")
+                                    else:
+                                        recs.append(f"FAILED[{err_type}] -> {title} ({cid}): {str(e)}")
+                                    recs.append(f"TRACE -> {tb.strip()}")
                                     fail += 1
-                                
+
                                 update_progress(idx + 1, total, title)
                                 await asyncio.sleep(interval_seconds)
-                            
+
                             await client.disconnect()
                             return recs, suc, fail, None
 
                         records, success, failed, err = loop.run_until_complete(_broadcast_task())
-                        
+
                         if err:
                             st.error(tr("tg_bc_fail_prefix").format(err))
+                            try:
+                                log_admin_op("broadcast_error", {"tenant": tenant_id, "error": err})
+                            except Exception:
+                                pass
                         else:
                             st.success(tr("tg_bc_success_fmt").format(success, failed))
-                        
+                            try:
+                                log_admin_op("broadcast_done", {"tenant": tenant_id, "success": success, "failed": failed})
+                            except Exception:
+                                pass
+
                         log_file = _get_tenant_tg_paths(tenant_id)["broadcast_log"]
                         os.makedirs(os.path.dirname(log_file), exist_ok=True)
                         with open(log_file, "a", encoding="utf-8") as f:
@@ -3741,6 +4087,8 @@ def render_telegram_broadcast():
                                 f.write(f"[{format_time(datetime.now())}] {rec}\n")
                     except Exception as e:
                         st.error(f"Execution error: {e}")
+                        import traceback
+                        st.code(traceback.format_exc())
                     finally:
                         loop.close()
 
@@ -3766,18 +4114,27 @@ def render_telegram_logs():
     tenant_id = st.session_state.get('tenant', 'default')
     paths = _get_tenant_tg_paths(tenant_id)
     
-    # 兼容 Default 的旧日志路径
+    # 统一日志文件名并兼容旧命名
+    def _pick_log(base_dir, preferred, legacy_list):
+        p = os.path.join(base_dir, preferred)
+        if os.path.exists(p):
+            return p
+        for lg in legacy_list:
+            lp = os.path.join(base_dir, lg)
+            if os.path.exists(lp):
+                return lp
+        # 默认返回首选路径
+        return p
+
     if tenant_id == "default" and not os.path.exists(paths["logs_dir"]):
-         # Fallback to platforms/telegram/logs
-         sys_log = "platforms/telegram/logs/system.log"
-         priv_log = "platforms/telegram/logs/private_chat.log"
-         grp_log = "platforms/telegram/logs/group_chat.log"
-         audit_log = "platforms/telegram/logs/audit.log"
+        base_dir = "platforms/telegram/logs"
     else:
-         sys_log = os.path.join(paths["logs_dir"], "system.log")
-         priv_log = os.path.join(paths["logs_dir"], "private_chat.log")
-         grp_log = os.path.join(paths["logs_dir"], "group_chat.log")
-         audit_log = os.path.join(paths["logs_dir"], "audit.log")
+        base_dir = paths["logs_dir"]
+
+    sys_log = _pick_log(base_dir, "system.log", ["system.log"])
+    priv_log = _pick_log(base_dir, "private.log", ["private_chat.log"])
+    grp_log  = _pick_log(base_dir, "group.log",   ["group_chat.log"])
+    audit_log= _pick_log(base_dir, "audit.log",  ["audit.log"])
 
     log_tab1, log_tab2, log_tab3, log_tab4 = st.tabs([
         f"🖥️ {tr('tg_log_sys')}", 
@@ -3874,7 +4231,6 @@ def log_admin_op(action, details):
     try:
         base = _ensure_data_dirs()
         log_file = os.path.join(base, "logs", "admin_ops.log")
-        # 简单敏感字段掩码
         for k in ["api_key", "token", "secret"]:
             if k in details:
                 details[k] = "***"
@@ -3886,6 +4242,17 @@ def log_admin_op(action, details):
             db.log_audit(tenant_id, role, action, details)
         except Exception:
             pass
+    except Exception:
+        pass
+
+def log_kb_op(tenant_id, action, details):
+    try:
+        base = _ensure_data_dirs()
+        kb_dir = os.path.join(base, "tenants", tenant_id, "knowledge_base")
+        os.makedirs(kb_dir, exist_ok=True)
+        path = os.path.join(kb_dir, "kb_ops.log")
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"action": action, "tenant": tenant_id, "details": details, "ts": datetime.now().isoformat()}, ensure_ascii=False) + "\n")
     except Exception:
         pass
 
@@ -3978,7 +4345,21 @@ def render_accounts_panel():
                         client = TelegramClient(s_path, int(t_api_id), t_api_hash, loop=loop)
                         return client, loop
 
-                    col_b1, col_b2 = st.columns(2)
+                    col_b0, col_b1, col_b2 = st.columns([1,1,1])
+                    if col_b0.button("🧹 清理会话", key="tg_clear_session"):
+                        safe_p = "".join([c for c in t_phone if c.isalnum() or c in ('-', '_')]).strip()
+                        if not safe_p: safe_p = "unnamed"
+                        s_path = os.path.join(sessions_dir, f"{safe_p}.session")
+                        try:
+                            if os.path.exists(s_path):
+                                os.remove(s_path)
+                            st.session_state.pop("tg_phone_hash", None)
+                            st.session_state.pop("add_tg_phone", None)
+                            log_admin_op("tg_session_clear", {"phone": t_phone, "session_file": f"{safe_p}.session"})
+                            st.success("✅ 已清理会话文件")
+                        except Exception as e:
+                            st.error(f"❌ 清理失败: {e}")
+                            log_admin_op("tg_session_clear_fail", {"phone": t_phone, "error": str(e)})
                     if col_b1.button("📡 发送验证码", key="add_tg_send"):
                         if not t_api_id or not t_api_hash or not t_phone:
                             st.error("请完善 API ID, Hash 和 手机号")
@@ -3991,20 +4372,31 @@ def render_accounts_panel():
                                         if await client.is_user_authorized():
                                             return "LOGGED_IN"
                                         else:
-                                            await client.send_code_request(t_phone)
-                                            return "SENT"
+                                            # 捕获返回值以获取 phone_code_hash
+                                            sent = await client.send_code_request(t_phone)
+                                            return sent
                                     
                                     try:
                                         res = loop.run_until_complete(do_send())
                                         if res == "LOGGED_IN":
-                                            st.success("✅ 该账号已登录！")
+                                            st.success("✅ 检测到本机存在已登录会话")
+                                            st.info("如需重新验证，请点击左侧【清理会话】后再次发送验证码")
+                                            log_admin_op("add_tg_send_success", {"phone": t_phone, "status": "LOGGED_IN"})
                                         else:
-                                            st.success("✅ 验证码已发送！")
+                                            # res is SentCode object
+                                            st.session_state["tg_phone_hash"] = res.phone_code_hash
+                                            st.success("✅ 验证码已发送！请留意 Telegram App 通知（或短信）")
+                                            log_admin_op("add_tg_send_success", {"phone": t_phone, "status": "SENT", "hash": res.phone_code_hash})
                                     finally:
-                                        loop.run_until_complete(client.disconnect())
+                                        try:
+                                            loop.run_until_complete(client.disconnect())
+                                        except Exception:
+                                            pass
                                         loop.close()
                                 except Exception as e:
+                                    err_msg = f"{e}\n{traceback.format_exc()}"
                                     st.error(f"发送失败: {e}")
+                                    log_admin_op("add_tg_send_fail", {"phone": t_phone, "error": err_msg})
                                 
                     if col_b2.button("🚀 验证并登录", key="add_tg_login"):
                         if not t_code:
@@ -4016,12 +4408,18 @@ def render_accounts_panel():
                                      async def do_login():
                                          await client.connect()
                                          try:
+                                             phash = st.session_state.get("tg_phone_hash")
+                                             if not phash:
+                                                 raise ValueError("未找到验证上下文，请重新点击【发送验证码】")
+
+                                             # 始终先尝试用验证码登录（即使有密码，也需要先过验证码）
+                                             await client.sign_in(phone=t_phone, code=t_code, phone_code_hash=phash)
+                                         except SessionPasswordNeededError:
+                                             # 需要两步验证
                                              if t_pwd:
                                                  await client.sign_in(password=t_pwd)
                                              else:
-                                                 await client.sign_in(phone=t_phone, code=t_code)
-                                         except SessionPasswordNeededError:
-                                             return "NEED_PWD"
+                                                 return "NEED_PWD"
                                          
                                          if await client.is_user_authorized():
                                              me = await client.get_me()
@@ -4034,19 +4432,33 @@ def render_accounts_panel():
                                              if not t_pwd:
                                                  st.error("🔐 需要两步验证密码")
                                              else:
-                                                 # Should not happen if logic is correct (t_pwd covered above)
                                                  st.error("🔐 密码错误或需要两步验证")
                                          elif res:
                                              u_name = res.username or res.first_name
                                              st.success(f"✅ 登录成功！用户: {u_name}")
                                              st.info("Session 文件已生成，点击下方【添加账号】即可保存。")
+                                             safe_p = "".join([c for c in t_phone if c.isalnum() or c in ('-', '_')]).strip() or "unnamed"
+                                             meta_path = os.path.join(sessions_dir, f"{safe_p}.meta.json")
+                                             try:
+                                                 ensure_session_meta(os.path.join(sessions_dir, f"{safe_p}.session"), meta_path, res.id, u_name, validity_days=30, salt=os.getenv("SESSION_SALT", ""))
+                                                 log_admin_op("session_meta_create", {"phone": t_phone, "session_file": f"{safe_p}.session"})
+                                             except Exception as e:
+                                                 log_admin_op("session_meta_create_fail", {"phone": t_phone, "error": str(e)})
+                                             st.session_state["last_tg_phone"] = t_phone
+                                             log_admin_op("add_tg_login_success", {"phone": t_phone, "username": u_name})
                                          else:
                                              st.error("❌ 登录未完成")
+                                             log_admin_op("add_tg_login_fail", {"phone": t_phone, "reason": "not_authorized"})
                                      finally:
-                                         loop.run_until_complete(client.disconnect())
+                                         try:
+                                             loop.run_until_complete(client.disconnect())
+                                         except Exception:
+                                             pass
                                          loop.close()
                                  except Exception as e:
+                                     err_msg = f"{e}\n{traceback.format_exc()}"
                                      st.error(f"登录失败: {e}")
+                                     log_admin_op("add_tg_login_fail", {"phone": t_phone, "error": err_msg})
                     st.divider()
 
                 if st.button(tr("acc_btn_add"), width="stretch", key="acc_add"):
@@ -4060,17 +4472,35 @@ def render_accounts_panel():
                     }
                     # Auto-assign session file for Telegram if not present
                     if platform == "Telegram":
-                        # Clean username for filename
-                        safe_user = "".join([c for c in username if c.isalnum() or c in ('-', '_')]).strip()
-                        if not safe_user: safe_user = "unnamed"
-                        item["session_file"] = f"{safe_user}.session"
+                        if "tg_phone_hash" in st.session_state and (t_phone or st.session_state.get("last_tg_phone")):
+                            phone_for_session = t_phone or st.session_state.get("last_tg_phone") or ""
+                            safe_p = "".join([c for c in phone_for_session if c.isalnum() or c in ('-', '_')]).strip() or "unnamed"
+                            item["session_file"] = f"{safe_p}.session"
+                            if not username:
+                                item["username"] = phone_for_session
+                        else:
+                            safe_user = "".join([c for c in username if c.isalnum() or c in ('-', '_')]).strip() or "unnamed"
+                            item["session_file"] = f"{safe_user}.session"
+                    
+                    # 检查 Session 文件是否存在，并更新状态
+                    if "session_file" in item:
+                        s_path = os.path.join(sessions_dir, item["session_file"])
+                        if os.path.exists(s_path):
+                            item["status"] = "active"
+                            item["note"] = "手动添加并验证"
+                        else:
+                            item["status"] = "error"
+                            item["note"] = "Session文件不存在"
 
                     found = False
                     for i, a in enumerate(db["accounts"]):
                         if a["platform"] == platform and a["username"] == username:
-                            # Preserve existing session file if not updating it
-                            if "session_file" in a:
-                                item["session_file"] = a["session_file"]
+                            # Preserve existing session file if not updating it AND current item has no valid session
+                            # But here we want to overwrite if we just added a new session
+                            # logic: if new item has valid session file (exists), overwrite. 
+                            # If new item is missing session file but old has it, keep old?
+                            # For now, simple overwrite logic but respect session file logic above
+                            
                             db["accounts"][i] = item
                             found = True
                             break
@@ -4280,14 +4710,19 @@ def render_accounts_panel():
                                                 s_path = os.path.join(sessions_dir, acc["session_file"])
                                                 if os.path.exists(s_path):
                                                     try:
-                                                        real_user = asyncio.run(get_session_user(s_path, api_id, api_hash))
-                                                        if real_user:
+                                                        meta_path = os.path.splitext(s_path)[0] + ".meta.json"
+                                                        v = asyncio.run(check_session_validity(s_path, api_id, api_hash, meta_path))
+                                                        if v.get("authorized"):
                                                             acc["status"] = "active"
-                                                            acc["note"] = f"Verified {datetime.now().strftime('%H:%M')}"
-                                                            acc["username"] = real_user
+                                                            acc["note"] = v.get("expires_at") or f"Verified {datetime.now().strftime('%H:%M')}"
+                                                            if v.get("username"):
+                                                                acc["username"] = v["username"]
+                                                            if v.get("meta_exists") and v.get("expired") is False:
+                                                                log_admin_op("session_meta_valid", {"session_file": acc.get("session_file"), "expires_at": v.get("expires_at")})
                                                         else:
                                                             acc["status"] = "error"
-                                                            acc["note"] = "验证失败: Auth Key失效"
+                                                            acc["note"] = "验证失败"
+                                                            log_admin_op("session_meta_invalid", {"session_file": acc.get("session_file")})
                                                     except Exception as e:
                                                         acc["status"] = "error"
                                                         acc["note"] = f"验证异常: {str(e)}"
@@ -4320,6 +4755,15 @@ def render_accounts_panel():
                                                 try:
                                                     os.remove(s_path)
                                                 except: pass
+                                        uname = acc.get("username", "")
+                                        if uname:
+                                            alt_safe = "".join([c for c in uname if c.isalnum() or c in ('-', '_')]).strip()
+                                            if alt_safe:
+                                                alt_path = os.path.join(sessions_dir, f"{alt_safe}.session")
+                                                if os.path.exists(alt_path) and alt_path != s_path:
+                                                    try:
+                                                        os.remove(alt_path)
+                                                    except: pass
                                         del current_accounts[idx]
                                         deleted_count += 1
                                 db["accounts"] = current_accounts
@@ -6801,7 +7245,9 @@ def render_audit_panel():
         return
     
     # Init manager
-    km = KeywordManager()
+    _tenant_for_kw2 = st.session_state.get('tenant', 'default')
+    _kw_path2 = os.path.join(str(DATA_DIR), "tenants", _tenant_for_kw2, "platforms", "telegram", "keywords.json")
+    km = KeywordManager(_kw_path2)
     
     tab1, tab2, tab3 = st.tabs([tr("audit_tab_keywords"), tr("audit_tab_logs"), tr("audit_tab_config")])
     

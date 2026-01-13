@@ -49,8 +49,15 @@ class ConfigManager:
 
     def load_system_prompt(self):
         prompt_file = self._get_readable_path("prompt.txt")
-        default_prompt = "你是一个幽默、专业的个人助理，帮机主回复消息。请用自然、友好的语气回复。"
-        
+        try:
+            cfg = self.load_config()
+        except Exception:
+            cfg = {}
+        mode = str(cfg.get("CONVERSATION_MODE", "ai_visible") or "ai_visible").lower()
+        if mode == "human_simulated":
+            default_prompt = "你是一个幽默、专业的个人助理，帮机主回复消息。请用自然、友好的语气回复。"
+        else:
+            default_prompt = "你是企业官方的客服/技术支持 AI 助手，请以专业、正式、简洁的语气回答用户的问题，重点解决问题本身，避免过度拟人或闲聊。"
         try:
             with open(prompt_file, 'r', encoding='utf-8') as f:
                 content = f.read().strip()
@@ -90,7 +97,8 @@ class ConfigManager:
             'QUOTE_MAX_LEN': 200,
             'CONV_ORCHESTRATION': False,
             'KB_ONLY_REPLY': False,
-            'CONVERSATION_MODE': 'ai_visible'
+            'CONVERSATION_MODE': 'ai_visible',
+            'BOT_TOKEN': ''
         }
         
         try:

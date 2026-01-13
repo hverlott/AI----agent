@@ -1,751 +1,751 @@
 [
   {
-    "t": 1767766644.6797252,
-    "cpu_pct": 42.4,
+    "t": 1768276688.9673564,
+    "cpu_pct": 6.0,
     "mem": {
       "total": 25768624128,
-      "available": 5783072768,
-      "percent": 77.6,
-      "used": 19985551360,
-      "free": 5783072768
+      "available": 3894079488,
+      "percent": 84.9,
+      "used": 21874544640,
+      "free": 3894079488
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22732800,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22376448,
-        "vms": 12644352,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766645.2911954,
-    "cpu_pct": 34.3,
+    "t": 1768276689.5755913,
+    "cpu_pct": 14.9,
     "mem": {
       "total": 25768624128,
-      "available": 5782036480,
-      "percent": 77.6,
-      "used": 19986587648,
-      "free": 5782036480
+      "available": 3897212928,
+      "percent": 84.9,
+      "used": 21871411200,
+      "free": 3897212928
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22736896,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22396928,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766645.9028323,
-    "cpu_pct": 31.1,
+    "t": 1768276690.2050035,
+    "cpu_pct": 8.1,
     "mem": {
       "total": 25768624128,
-      "available": 5785419776,
-      "percent": 77.5,
-      "used": 19983204352,
-      "free": 5785419776
+      "available": 3903430656,
+      "percent": 84.9,
+      "used": 21865193472,
+      "free": 3903430656
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22740992,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22405120,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766646.5034332,
-    "cpu_pct": 33.3,
+    "t": 1768276690.808593,
+    "cpu_pct": 8.3,
     "mem": {
       "total": 25768624128,
-      "available": 5773750272,
-      "percent": 77.6,
-      "used": 19994873856,
-      "free": 5773750272
+      "available": 3905994752,
+      "percent": 84.8,
+      "used": 21862629376,
+      "free": 3905994752
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22753280,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22409216,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766647.1017213,
-    "cpu_pct": 30.7,
+    "t": 1768276691.4188983,
+    "cpu_pct": 13.3,
     "mem": {
       "total": 25768624128,
-      "available": 5785370624,
-      "percent": 77.5,
-      "used": 19983253504,
-      "free": 5785370624
+      "available": 3906326528,
+      "percent": 84.8,
+      "used": 21862297600,
+      "free": 3906326528
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22753280,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22413312,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766647.7398477,
-    "cpu_pct": 32.9,
+    "t": 1768276692.02588,
+    "cpu_pct": 4.9,
     "mem": {
       "total": 25768624128,
-      "available": 5774524416,
-      "percent": 77.6,
-      "used": 19994099712,
-      "free": 5774524416
+      "available": 3910819840,
+      "percent": 84.8,
+      "used": 21857804288,
+      "free": 3910819840
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22757376,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22413312,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766648.3477771,
-    "cpu_pct": 46.3,
+    "t": 1768276692.627489,
+    "cpu_pct": 8.7,
     "mem": {
       "total": 25768624128,
-      "available": 5771874304,
-      "percent": 77.6,
-      "used": 19996749824,
-      "free": 5771874304
+      "available": 3910754304,
+      "percent": 84.8,
+      "used": 21857869824,
+      "free": 3910754304
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22765568,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22417408,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766648.95262,
-    "cpu_pct": 30.5,
+    "t": 1768276693.226518,
+    "cpu_pct": 9.9,
     "mem": {
       "total": 25768624128,
-      "available": 5773524992,
-      "percent": 77.6,
-      "used": 19995099136,
-      "free": 5773524992
+      "available": 3919499264,
+      "percent": 84.8,
+      "used": 21849124864,
+      "free": 3919499264
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22765568,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22425600,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766649.5599158,
-    "cpu_pct": 32.4,
+    "t": 1768276693.8630514,
+    "cpu_pct": 6.3,
     "mem": {
       "total": 25768624128,
-      "available": 5773561856,
-      "percent": 77.6,
-      "used": 19995062272,
-      "free": 5773561856
+      "available": 3911684096,
+      "percent": 84.8,
+      "used": 21856940032,
+      "free": 3911684096
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22769664,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22429696,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   },
   {
-    "t": 1767766650.1659114,
-    "cpu_pct": 30.5,
+    "t": 1768276694.4621563,
+    "cpu_pct": 17.7,
     "mem": {
       "total": 25768624128,
-      "available": 5771980800,
-      "percent": 77.6,
-      "used": 19996643328,
-      "free": 5771980800
+      "available": 3913203712,
+      "percent": 84.8,
+      "used": 21855420416,
+      "free": 3913203712
     },
     "disk": {
       "total": 322104717312,
-      "used": 20139757568,
-      "free": 301964959744,
-      "percent": 6.3
+      "used": 26469494784,
+      "free": 295635222528,
+      "percent": 8.2
     },
     "procs": [
       {
-        "pid": 5592,
+        "pid": 13760,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 1015808,
+        "rss": 200179712,
+        "vms": 525832192,
+        "threads": 14
+      },
+      {
+        "pid": 16408,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8658944,
         "vms": 1699840,
         "threads": 1
       },
       {
-        "pid": 17820,
+        "pid": 18812,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8712192,
-        "vms": 1851392,
+        "rss": 22773760,
+        "vms": 12537856,
         "threads": 4
       },
       {
-        "pid": 26656,
+        "pid": 21976,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 8478720,
-        "vms": 1748992,
+        "rss": 7794688,
+        "vms": 1716224,
         "threads": 1
       },
       {
-        "pid": 32644,
-        "name": "streamlit.exe",
-        "cpu_pct": 0.0,
-        "rss": 8572928,
-        "vms": 1519616,
-        "threads": 1
-      },
-      {
-        "pid": 34588,
+        "pid": 24704,
         "name": "python.exe",
         "cpu_pct": 0.0,
-        "rss": 22437888,
-        "vms": 12701696,
+        "rss": 96247808,
+        "vms": 74698752,
+        "threads": 3
+      },
+      {
+        "pid": 28880,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 170962944,
+        "vms": 511094784,
+        "threads": 19
+      },
+      {
+        "pid": 30776,
+        "name": "python.exe",
+        "cpu_pct": 0.0,
+        "rss": 8716288,
+        "vms": 1843200,
         "threads": 4
-      },
-      {
-        "pid": 34732,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 183341056,
-        "vms": 508948480,
-        "threads": 16
-      },
-      {
-        "pid": 38976,
-        "name": "python.exe",
-        "cpu_pct": 0.0,
-        "rss": 7503872,
-        "vms": 445992960,
-        "threads": 14
       }
     ]
   }
