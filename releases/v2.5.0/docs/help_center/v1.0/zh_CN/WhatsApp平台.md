@@ -1,7 +1,7 @@
 # WhatsApp 平台管理 (WhatsApp Platform)
 
-Version: 2.5.0  
-Last Updated: 2026-01-12
+Version: 1.0  
+Last Updated: 2026-01-07
 
 ## 1. 功能用途
 提供 WhatsApp 机器人登录、启停、日志与统计查看能力，支持二维码登录与群发基础功能。

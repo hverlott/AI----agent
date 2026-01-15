@@ -17,30 +17,6 @@ class ConfigManager:
     def get_platform_path(self, filename):
         return os.path.join(self.platform_dir, filename)
 
-    def _get_readable_path(self, filename):
-        """
-        Get the path to read a file, with fallback for 'default' tenant.
-        """
-        tenant_path = self.get_platform_path(filename)
-        if os.path.exists(tenant_path):
-            return tenant_path
-        
-        # Fallback for default tenant to root platforms directory (Legacy support)
-        if self.tenant_id == 'default':
-            # Assuming src/config/loader.py -> src/config -> src -> root
-            # Actually, we need to go up from this file location to project root
-            # loader.py is in releases/v2.5.0/src/config/
-            # root is releases/v2.5.0/
-            
-            # Use self.base_dir (data/tenants/...) to find relative root? No.
-            # We can rely on relative path from CWD if running from root.
-            # But let's be safe.
-            root_platform_path = os.path.join("platforms", "telegram", filename)
-            if os.path.exists(root_platform_path):
-                return root_platform_path
-                
-        return tenant_path
-
     def get_session_path(self, session_name):
         name = session_name
         if name.endswith('.session'):
@@ -48,7 +24,7 @@ class ConfigManager:
         return os.path.join(self.sessions_dir, name)
 
     def load_system_prompt(self):
-        prompt_file = self._get_readable_path("prompt.txt")
+        prompt_file = self.get_platform_path("prompt.txt")
         default_prompt = "你是一个幽默、专业的个人助理，帮机主回复消息。请用自然、友好的语气回复。"
         
         try:
@@ -59,7 +35,7 @@ class ConfigManager:
             return default_prompt
 
     def load_keywords(self):
-        keywords_file = self._get_readable_path("keywords.txt")
+        keywords_file = self.get_platform_path("keywords.txt")
         keywords = []
         try:
             with open(keywords_file, 'r', encoding='utf-8') as f:
@@ -72,7 +48,7 @@ class ConfigManager:
             return []
 
     def load_config(self):
-        config_file = self._get_readable_path("config.txt")
+        config_file = self.get_platform_path("config.txt")
         config = {
             'PRIVATE_REPLY': True,
             'GROUP_REPLY': True,
@@ -128,7 +104,6 @@ class ConfigManager:
 
     def set_kb_refresh_off(self):
         try:
-            # Note: We always write to the TENANT path, never to the fallback root path.
             path = self.get_platform_path("config.txt")
             if not os.path.exists(path): return
             with open(path, "r", encoding="utf-8") as f: lines = f.readlines()

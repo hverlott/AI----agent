@@ -118,6 +118,16 @@ def md_to_docx(md_file_path, docx_file_path):
     print(f"Successfully converted {md_file_path} to {docx_file_path}")
 
 if __name__ == "__main__":
-    target_md = r"d:\SaaS-AIs\releases\v2.5.1\docs\help_center\v1.0\zh_CN\客服AI系统说明文档.md"
-    target_docx = r"d:\SaaS-AIs\releases\v2.5.1\docs\help_center\v1.0\zh_CN\客服AI系统说明文档.docx"
+    md_path = r"d:\SaaS-AIs\releases\v2.5.0\docs\help_center\v1.0\zh_CN\产品需求文档.md"
+    # Note: User referred to '客服AI系统说明文档.md' but the file I edited earlier was 'Product_Requirements_Document.md'.
+    # I should check if '客服AI系统说明文档.md' actually exists or if the user renamed it in their mind.
+    # The read command showed content for '客服AI系统说明文档.md' doesn't exist? Wait.
+    # The previous Read call used 'D:\AI Talk\docs\help_center\v1.0\zh_CN\客服AI系统说明文档.md' and returned content.
+    # Wait, the tool output for Read shows the content starts with "# API客服功能说明文档" and "## 1. 项目背景与目标".
+    # This matches the PRD content I edited earlier.
+    # So the file definitely exists at that path.
+    
+    target_md = r"d:\SaaS-AIs\releases\v2.5.0\docs\help_center\v1.0\zh_CN\客服AI系统说明文档.md" 
+    target_docx = r"d:\SaaS-AIs\releases\v2.5.0\docs\help_center\v1.0\zh_CN\客服AI系统说明文档.docx"
+    
     md_to_docx(target_md, target_docx)

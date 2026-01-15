@@ -1,0 +1,275 @@
+import os
+import json
+
+class ConfigManager:
+    def __init__(self, tenant_id):
+        self.tenant_id = tenant_id
+        # Define base paths
+        data_dir = os.environ.get("SAAS_DATA_DIR", "data")
+        self.base_dir = os.path.join(data_dir, "tenants", self.tenant_id)
+        self.platform_dir = os.path.join(self.base_dir, "platforms", "telegram")
+        self.sessions_dir = os.path.join(self.base_dir, "sessions")
+        
+        # Ensure directories exist
+        os.makedirs(self.platform_dir, exist_ok=True)
+        os.makedirs(self.sessions_dir, exist_ok=True)
+
+    def get_platform_path(self, filename):
+        return os.path.join(self.platform_dir, filename)
+
+    def _get_readable_path(self, filename):
+        """
+        Get the path to read a file, with fallback for 'default' tenant.
+        """
+        tenant_path = self.get_platform_path(filename)
+        if os.path.exists(tenant_path):
+            return tenant_path
+        
+        # Fallback for default tenant to root platforms directory (Legacy support)
+        if self.tenant_id == 'default':
+            # Assuming src/config/loader.py -> src/config -> src -> root
+            # Actually, we need to go up from this file location to project root
+            # loader.py is in releases/v2.5.1/src/config/
+            # root is releases/v2.5.1/
+            
+            # Use self.base_dir (data/tenants/...) to find relative root? No.
+            # We can rely on relative path from CWD if running from root.
+            # But let's be safe.
+            root_platform_path = os.path.join("platforms", "telegram", filename)
+            if os.path.exists(root_platform_path):
+                return root_platform_path
+                
+        return tenant_path
+
+    def get_session_path(self, session_name):
+        name = session_name
+        if name.endswith('.session'):
+            name = name[:-8]
+        return os.path.join(self.sessions_dir, name)
+
+    def load_system_prompt(self):
+        prompt_file = self._get_readable_path("prompt.txt")
+        try:
+            cfg = self.load_config()
+        except Exception:
+            cfg = {}
+        mode = str(cfg.get("CONVERSATION_MODE", "ai_visible") or "ai_visible").lower()
+        if mode == "human_simulated":
+            default_prompt = "你是一个幽默、专业的个人助理，帮机主回复消息。请用自然、友好的语气回复。"
+        else:
+            default_prompt = "你是企业官方的客服/技术支持 AI 助手，请以专业、正式、简洁的语气回答用户的问题，重点解决问题本身，避免过度拟人或闲聊。"
+        try:
+            with open(prompt_file, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
+                return content if content else default_prompt
+        except Exception:
+            return default_prompt
+
+    def load_keywords(self):
+        keywords_file = self._get_readable_path("keywords.txt")
+        keywords = []
+        try:
+            with open(keywords_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    keyword = line.strip()
+                    if keyword and not keyword.startswith('#'):
+                        keywords.append(keyword)
+            return keywords
+        except Exception:
+            return []
+
+    def load_config(self):
+        """
+        Load configuration, prioritizing Database, then File.
+        """
+        # Default Config
+        config = {
+            'PRIVATE_REPLY': True,
+            'GROUP_REPLY': True,
+            'GROUP_CONTEXT': False,
+            'SENDER_FILTER_ENABLED': False,
+            'SENDER_NAME_FILTER_KEYWORDS': '',
+            'AI_TEMPERATURE': 0.7,
+            'AUDIT_ENABLED': True,
+            'AUDIT_MAX_RETRIES': 3,
+            'AUDIT_TEMPERATURE': 0.0,
+            'REPLY_DELAY_MIN_SECONDS': 3.0,
+            'REPLY_DELAY_MAX_SECONDS': 10.0,
+            'AUTO_QUOTE': False,
+            'QUOTE_INTERVAL_SECONDS': 30.0,
+            'QUOTE_MAX_LEN': 200,
+            'CONV_ORCHESTRATION': False,
+            'KB_ONLY_REPLY': False,
+            'CONVERSATION_MODE': 'ai_visible',
+            'BOT_TOKEN': ''
+        }
+
+        # 1. Try Load from DB (Tenants Table Config)
+        try:
+            from src.core.database import db
+            db_conf = db.get_tenant_config(self.tenant_id)
+            if db_conf:
+                # Merge DB config into default.
+                # DB Config keys are case-sensitive strings, usually matching keys.
+                # But values in DB might be strings "on"/"off" or actual bools depending on how we saved.
+                # Our migration script saved them as strings because it read from file.
+                for k, v in db_conf.items():
+                    k = k.upper() # Ensure upper case for matching defaults
+                    if k in config:
+                        # Type conversion based on default type
+                        default_val = config[k]
+                        if isinstance(default_val, bool):
+                            if isinstance(v, str):
+                                config[k] = (v.lower() == 'on')
+                            else:
+                                config[k] = bool(v)
+                        elif isinstance(default_val, int):
+                            try: config[k] = int(v)
+                            except: pass
+                        elif isinstance(default_val, float):
+                            try: config[k] = float(v)
+                            except: pass
+                        else:
+                            config[k] = v
+                    else:
+                        # Extra keys (like keys not in default dict but valid)
+                        config[k] = v
+                
+                # If DB load was successful, we might return here.
+                # However, for hybrid approach during transition, we might want to overlay file config?
+                # The user requirement is "Migrate ... to database". So DB should be source of truth.
+                # If DB has config, use it.
+                if db_conf:
+                    return config
+        except ImportError:
+            pass
+        except Exception as e:
+            # Fallback to file if DB fails
+            pass
+
+        # 2. Fallback to File (Legacy)
+        config_file = self._get_readable_path("config.txt")
+        try:
+            with open(config_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    
+                    if '=' in line:
+                        key, raw_value = line.split('=', 1)
+                        key = key.strip()
+                        raw_value = raw_value.strip()
+                        value_lower = raw_value.lower()
+                        
+                        if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'GROUP_CONTEXT', 'SENDER_FILTER_ENABLED', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION', 'KB_ONLY_REPLY']:
+                            config[key] = (value_lower == 'on')
+                        elif key == 'CONVERSATION_MODE':
+                            if value_lower in ['ai_visible', 'human_simulated']:
+                                config[key] = value_lower
+                        elif key in ['AI_TEMPERATURE', 'AUDIT_TEMPERATURE', 'REPLY_DELAY_MIN_SECONDS', 'REPLY_DELAY_MAX_SECONDS', 'QUOTE_INTERVAL_SECONDS']:
+                            try:
+                                config[key] = float(value_lower)
+                            except ValueError:
+                                pass
+                        elif key in ['AUDIT_MAX_RETRIES', 'QUOTE_MAX_LEN']:
+                            try:
+                                config[key] = int(value_lower)
+                            except ValueError:
+                                pass
+                        elif key == 'SENDER_NAME_FILTER_KEYWORDS':
+                            config[key] = raw_value
+                        elif key == 'CONTENT_FILTER':
+                            try:
+                                config[key] = json.loads(raw_value)
+                            except:
+                                config[key] = {}
+                        else:
+                            # String values (AUDIT_MODE, AUDIT_SERVERS, HANDOFF_KEYWORDS, etc.)
+                            config[key] = raw_value
+        except Exception:
+            pass
+
+        # Load from config.json (JSON Config Overlay)
+        json_config_path = self.get_platform_path("config.json")
+        if os.path.exists(json_config_path):
+            try:
+                with open(json_config_path, 'r', encoding='utf-8') as f:
+                    j_conf = json.load(f)
+                    if j_conf.get("bot_token"):
+                        config["BOT_TOKEN"] = j_conf["bot_token"]
+            except Exception:
+                pass
+
+        return config
+
+    def load_rag_config(self):
+        """Load RAG configuration from rag_config.json"""
+        path = self.get_platform_path("rag_config.json")
+        default_conf = {
+            "embedding_model_id": "text-embedding-3-small",
+            "top_k": 3,
+            "score_threshold": 0.45,
+            "hybrid_weight": 0.7
+        }
+        try:
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    default_conf.update(data)
+        except Exception:
+            pass
+        return default_conf
+
+    def set_kb_refresh_off(self):
+        try:
+            # Note: We always write to the TENANT path, never to the fallback root path.
+            path = self.get_platform_path("config.txt")
+            if not os.path.exists(path): return
+            with open(path, "r", encoding="utf-8") as f: lines = f.readlines()
+            with open(path, "w", encoding="utf-8") as f:
+                for line in lines:
+                    if line.strip().startswith("KB_REFRESH="):
+                        f.write("KB_REFRESH=off\n")
+                    else:
+                        f.write(line)
+        except Exception:
+            pass
+
+    def load_ai_providers(self):
+        """Load the ai_providers.json configuration."""
+        path = os.path.join(self.base_dir, "ai_providers.json")
+        try:
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f).get("providers", [])
+        except Exception:
+            pass
+        return []
+
+    def get_model_config(self, model_identifier):
+        """
+        Find configuration for a specific model identifier.
+        Identifier format: "provider:model" or just "provider" (if model is implicit)
+        """
+        providers = self.load_ai_providers()
+        if not providers:
+            return None
+            
+        # Try exact match first (if identifier has provider:model format)
+        if ":" in model_identifier:
+            prov_name, model_name = model_identifier.split(":", 1)
+            for p in providers:
+                if p.get("provider") == prov_name and p.get("model") == model_name:
+                    return p
+        
+        # Try finding by provider name only or model name only as fallback
+        for p in providers:
+            # Check if identifier matches provider name
+            if p.get("provider") == model_identifier:
+                return p
+            # Check if identifier matches model name
+            if p.get("model") == model_identifier:
+                return p
+                
+        return None

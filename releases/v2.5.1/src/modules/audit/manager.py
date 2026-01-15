@@ -95,17 +95,7 @@ class AuditManager:
         self.model_name = model_name
         self.config_loader = config_loader
         self.platform = platform or "telegram"
-        # Initialize KeywordManager with tenant-scoped path based on log_dir
-        km_path = None
-        try:
-            if log_dir:
-                base_dir = log_dir
-                if base_dir.replace('\\','/').endswith('/logs'):
-                    base_dir = os.path.dirname(base_dir)
-                km_path = os.path.join(base_dir, "keywords.json")
-        except Exception:
-            km_path = None
-        self.keyword_manager = KeywordManager(km_path) if km_path else KeywordManager()
+        self.keyword_manager = KeywordManager()
         
         # Setup Logger
         if log_dir:

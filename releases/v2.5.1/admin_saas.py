@@ -42,7 +42,7 @@ def login_page():
         with st.form("login_form"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
-            submitted = st.form_submit_button("Sign In", width="stretch")
+            submitted = st.form_submit_button("Sign In", use_container_width=True)
             
             if submitted:
                 # In real deployment, get actual IP from headers if possible, here use placeholder
@@ -64,7 +64,7 @@ def main_dashboard():
         st.sidebar.caption(f"Tenant: {user['tenant_id']}")
         
     st.sidebar.markdown("---")
-    if st.sidebar.button("Logout", width="stretch"):
+    if st.sidebar.button("Logout", use_container_width=True):
         st.session_state.user = None
         st.rerun()
 
@@ -86,7 +86,7 @@ def super_admin_view():
             st.subheader("Tenants")
             tenants = db.list_tenants()
             if tenants:
-                st.dataframe(pd.DataFrame(tenants)[['id', 'plan', 'created_at']], width="stretch")
+                st.dataframe(pd.DataFrame(tenants)[['id', 'plan', 'created_at']], use_container_width=True)
             
             with st.expander("➕ Create Tenant"):
                 with st.form("new_tenant"):
@@ -102,7 +102,7 @@ def super_admin_view():
             st.subheader("Users")
             users = db.list_users()
             if users:
-                st.dataframe(pd.DataFrame(users)[['username', 'role', 'tenant_id', 'status']], width="stretch")
+                st.dataframe(pd.DataFrame(users)[['username', 'role', 'tenant_id', 'status']], use_container_width=True)
                 
             with st.expander("➕ Create User"):
                 with st.form("new_user"):
@@ -130,7 +130,7 @@ def super_admin_view():
         st.subheader("IP Whitelist Management")
         ips = db.list_ip_whitelist()
         if ips:
-            st.dataframe(pd.DataFrame(ips)[['ip_address', 'description', 'created_at']], width="stretch")
+            st.dataframe(pd.DataFrame(ips)[['ip_address', 'description', 'created_at']], use_container_width=True)
         
         with st.form("add_ip"):
             c_ip1, c_ip2 = st.columns(2)
@@ -164,7 +164,7 @@ def super_admin_view():
         st.subheader("Login History")
         logs = db.get_login_history(limit=50)
         if logs:
-            st.dataframe(pd.DataFrame(logs)[['username', 'ip_address', 'status', 'timestamp']], width="stretch")
+            st.dataframe(pd.DataFrame(logs)[['username', 'ip_address', 'status', 'timestamp']], use_container_width=True)
         else:
             st.info("No login history yet.")
             
@@ -172,19 +172,16 @@ def super_admin_view():
         st.subheader("System Audit Logs")
         audit = db.get_audit_logs(limit=50)
         if audit:
-            st.dataframe(pd.DataFrame(audit)[['timestamp', 'user_role', 'action', 'details']], width="stretch")
+            st.dataframe(pd.DataFrame(audit)[['timestamp', 'user_role', 'action', 'details']], use_container_width=True)
 
     # 5. Upgrade
     with tabs[4]:
         st.subheader("System Update")
-        st.success(f"✅ System is running v2.5.1 (Active)")
-        st.info(f"Build Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        
+        st.info(f"Current Version: V2.4.0 (Build {int(time.time())})")
         if st.button("Check for Updates"):
             with st.spinner("Checking remote repository..."):
-                time.sleep(1)
-                st.balloons()
-                st.success("You are on the latest version: v2.5.1")
+                time.sleep(2)
+                st.success("System is up to date.")
 
 def business_admin_view(user):
     tenant_id = user['tenant_id']
@@ -234,7 +231,7 @@ def business_admin_view(user):
         st.subheader("Knowledge Base")
         kb_items = db.get_kb_items(tenant_id)
         if kb_items:
-            st.dataframe(pd.DataFrame(kb_items)[['title', 'category', 'updated_at']], width="stretch")
+            st.dataframe(pd.DataFrame(kb_items)[['title', 'category', 'updated_at']], use_container_width=True)
         else:
             st.info("Knowledge Base is empty.")
             
@@ -258,7 +255,7 @@ def business_admin_view(user):
                 
             st.dataframe(
                 df[cols], 
-                width="stretch",
+                use_container_width=True,
                 column_config={
                     "timestamp": st.column_config.DatetimeColumn("Time", format="D MMM, HH:mm:ss"),
                     "details": "Details (User Info)"

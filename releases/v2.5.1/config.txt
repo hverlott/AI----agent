@@ -1,5 +1,5 @@
 # ========================================
-# Telegram AI Bot - 功能开关配置 (v2.5.1 Template)
+# Telegram AI Bot - 功能开关配置 (v2.5.0 Template)
 # ========================================
 # 注意：本文件为默认模板。
 # 多租户模式下，实际配置位于 data/tenants/{tenant_id}/platforms/telegram/config.txt

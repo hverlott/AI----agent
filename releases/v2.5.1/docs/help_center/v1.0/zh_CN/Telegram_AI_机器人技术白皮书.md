@@ -58,7 +58,7 @@ graph TD
 ## 3. 关键逻辑流程 (Key Logic Flows)
 
 ### 3.1 机器人启动与配置流程 (Startup & Configuration Flow)
-*v2.5.1 新增*：为了支持多租户与多 API 环境，系统的启动流程引入了动态配置加载机制。
+*v2.5.0 新增*：为了支持多租户与多 API 环境，系统的启动流程引入了动态配置加载机制。
 
 ```mermaid
 sequenceDiagram

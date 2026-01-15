@@ -96,93 +96,39 @@ sequenceDiagram
 
 ### 3.2 消息处理全链路 (Message Pipeline)
 
-系统对每一条消息进行毫秒级的多维度处理。根据配置模式不同，分为 **RAG 问答模式** 和 **SOP 编排模式**。
-
-#### 3.2.1 模式 A: RAG 知识库问答与 AI 对话 (RAG & AI Flow)
-适用于通用的客服问答场景，系统优先检索知识库，若无相关文档则回退到纯 AI 模式。
+系统对每一条消息进行毫秒级的多维度处理，确保响应的准确性与安全性。
 
 ```mermaid
 sequenceDiagram
     participant U as 用户 (User)
-    participant TG as Telethon
-    participant H as Telegram 处理器 (handlers.py)
-    participant CFG as 配置加载 (ConfigManager)
-    participant QA as QA 匹配 (qa.txt)
-    participant KB as 知识库检索 (KBEngine)
-    participant AI as 大模型调用 (AIClientManager)
-    participant AUD as 审计 (AuditManager)
-    participant DB as 日志/统计/审计库 (SQLite)
+    participant SYS as 系统核心 (Main Loop)
+    participant KB as 知识库 (RAG)
+    participant LLM as 大模型 (AI)
+    participant DB as 数据库 (DB)
 
-    U->>TG: 发送消息
-    TG->>H: NewMessage 事件
-    H->>CFG: 读取开关/人设/关键词
+    U->>SYS: 发送消息 (Private/Group)
+    SYS->>SYS: 1. 权限校验 (白名单/黑名单)
+    SYS->>SYS: 2. 意图识别 (关键词/@提及/上下文)
     
     alt 触发回复
-        H->>QA: 解析并尝试匹配
-        alt QA 命中
-            QA-->>H: 直接回复
-            H->>TG: 发送回复
-        else QA 未命中
-            H->>KB: 检索 Top-N
-            KB-->>H: 返回命中内容/摘要
+        SYS->>KB: 3. 语义检索 (Top-K)
+        KB-->>SYS: 返回相关文档片段
         
-            alt 命中足够 (RAG Mode)
-                H->>AI: 构建 Prompt (System + Docs + History)
-            else 命中不足 (Pure AI Mode)
-                H->>AI: 构建 Prompt (System + History)
-            end
+        SYS->>LLM: 4. 构建 Prompt (System + KB + History)
+        LLM-->>SYS: 生成回复 (Streaming)
         
-            AI-->>H: 生成草稿
-            H->>AUD: 内容审核与兜底
-            AUD-->>H: 最终回复/兜底
-            H->>TG: 发送回复
+        SYS->>SYS: 5. 格式化与风控检查
+        
+        par 并行执行
+            SYS->>U: 6. 发送回复
+            SYS->>DB: 7. 记录完整日志 (User_Content + Bot_Response)
         end
-        H->>DB: 记录日志与统计
     else 不触发
-        H-->>TG: (静默)
+        SYS-->>U: (静默忽略)
     end
 ```
 
-#### 3.2.2 模式 B: SOP 多智能体编排 (Orchestrator Flow)
-适用于复杂的销售引导或业务办理流程，通过状态机管理对话阶段。
-
-```mermaid
-sequenceDiagram
-    participant U as 用户 (User)
-    participant TG as Telethon
-    participant H as Telegram 处理器 (handlers.py)
-    participant STATE as 会话状态 (ConversationStateManager/SQLite)
-    participant SUP as Supervisor (决策者)
-    participant STAGE as Stage Agent (阶段执行器)
-    participant KB as 知识库 (KBEngine)
-    participant AI as 大模型 (AIClientManager)
-    participant AUD as 审计 (AuditManager)
-
-    U->>TG: 发送消息
-    TG->>H: NewMessage 事件
-    H->>STATE: 获取当前会话状态 (Stage/Persona)
-    
-    H->>SUP: 分析意图与下一阶段 (Decide)
-    SUP-->>H: 决策结果 (Next Stage, Handoff?)
-    
-    H->>STATE: 更新状态
-    
-    alt 需要转人工
-        H-->>TG: 发送转接提示
-    else AI 继续跟进
-        H->>KB: 检索上下文（可选）
-        KB-->>H: 返回命中内容/摘要
-        H->>STAGE: 生成话术 (Stage Prompt + KB + History)
-        STAGE->>AI: 调用大模型
-        AI-->>STAGE: 生成草稿
-        STAGE-->>H: 候选回复
-        H->>AUD: 内容审核与兜底
-        AUD-->>H: 最终回复/兜底
-        H-->>TG: 发送回复
-    end
-```
-
-### 3.3 智能路由与判断逻辑 (Decision Logic)
+### 3.2 智能路由与判断逻辑 (Decision Logic)
 
 系统不仅仅是简单的问答，而是具备“判断力”的智能体。
 

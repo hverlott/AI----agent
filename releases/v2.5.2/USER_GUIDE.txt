@@ -1,0 +1,26 @@
+AI Talk - 用户使用说明
+================================
+
+1) 安装与首次运行
+- 解压 release\\AI-Talk-Windows.zip 到任意目录
+- 双击 bin\\Env_Check.exe 进行环境检测
+- 编辑 .env（从 .env.example 复制），填入 TELEGRAM_API_ID/TELEGRAM_API_HASH 与 AI_API_KEY 等
+
+2) 启动
+- 管理后台（Telegram 单平台）：scripts\\start_admin.bat
+- 管理后台（多平台中心）：scripts\\start_multi_admin.bat
+- 机器人主程序（命令行）：bin\\AI_Talk_Bot.exe
+- 群发工具（命令行）：bin\\Broadcast_Tool.exe
+
+3) 注意事项
+- 绝不分发 .env 与 *.session 文件，首次登录会自动生成 Session
+- 如遇端口占用，可在启动脚本后添加参数：--server.port 8502
+- Windows 防火墙提示时请选择“允许”
+
+4) 卸载
+- 双击 release\\AI-Talk-Windows\\uninstall.bat，即可清理本目录所有文件
+
+5) 常见问题
+- telethon 未安装：请从打包版运行，或在 venv313 中执行 pip install -r requirements.txt
+- protobuf/streamlit 在 Python 3.14 出现兼容问题：请使用 venv313（Python 3.13）
+

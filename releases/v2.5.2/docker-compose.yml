@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Main Application Service
+  app:
+    build: .
+    container_name: saas_app
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/saas_ai
+      - SAAS_DATA_DIR=/app/data
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=saas_ai
+    volumes:
+      - ./data:/app/data
+      - ./platforms:/app/platforms
+      - ./config.txt:/app/config.txt
+      - ./prompt.txt:/app/prompt.txt
+      - ./keywords.txt:/app/keywords.txt
+    ports:
+      - "8501:8501" # Streamlit Admin Panel
+    restart: unless-stopped
+    command: sh -c "python setup_pg.py && python main.py"
+
+  # PostgreSQL with pgvector
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: saas_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: saas_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

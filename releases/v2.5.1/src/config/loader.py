@@ -29,8 +29,8 @@ class ConfigManager:
         if self.tenant_id == 'default':
             # Assuming src/config/loader.py -> src/config -> src -> root
             # Actually, we need to go up from this file location to project root
-            # loader.py is in releases/v2.5.1/src/config/
-            # root is releases/v2.5.1/
+            # loader.py is in releases/v2.5.0/src/config/
+            # root is releases/v2.5.0/
             
             # Use self.base_dir (data/tenants/...) to find relative root? No.
             # We can rely on relative path from CWD if running from root.
@@ -49,15 +49,8 @@ class ConfigManager:
 
     def load_system_prompt(self):
         prompt_file = self._get_readable_path("prompt.txt")
-        try:
-            cfg = self.load_config()
-        except Exception:
-            cfg = {}
-        mode = str(cfg.get("CONVERSATION_MODE", "ai_visible") or "ai_visible").lower()
-        if mode == "human_simulated":
-            default_prompt = "你是一个幽默、专业的个人助理，帮机主回复消息。请用自然、友好的语气回复。"
-        else:
-            default_prompt = "你是企业官方的客服/技术支持 AI 助手，请以专业、正式、简洁的语气回答用户的问题，重点解决问题本身，避免过度拟人或闲聊。"
+        default_prompt = "你是一个幽默、专业的个人助理，帮机主回复消息。请用自然、友好的语气回复。"
+        
         try:
             with open(prompt_file, 'r', encoding='utf-8') as f:
                 content = f.read().strip()
@@ -84,8 +77,6 @@ class ConfigManager:
             'PRIVATE_REPLY': True,
             'GROUP_REPLY': True,
             'GROUP_CONTEXT': False,
-            'SENDER_FILTER_ENABLED': False,
-            'SENDER_NAME_FILTER_KEYWORDS': '',
             'AI_TEMPERATURE': 0.7,
             'AUDIT_ENABLED': True,
             'AUDIT_MAX_RETRIES': 3,
@@ -97,8 +88,7 @@ class ConfigManager:
             'QUOTE_MAX_LEN': 200,
             'CONV_ORCHESTRATION': False,
             'KB_ONLY_REPLY': False,
-            'CONVERSATION_MODE': 'ai_visible',
-            'BOT_TOKEN': ''
+            'CONVERSATION_MODE': 'ai_visible'
         }
         
         try:
@@ -114,7 +104,7 @@ class ConfigManager:
                         raw_value = raw_value.strip()
                         value_lower = raw_value.lower()
                         
-                        if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'GROUP_CONTEXT', 'SENDER_FILTER_ENABLED', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION', 'KB_ONLY_REPLY']:
+                        if key in ['PRIVATE_REPLY', 'GROUP_REPLY', 'GROUP_CONTEXT', 'AUDIT_ENABLED', 'AUTO_QUOTE', 'CONV_ORCHESTRATION', 'KB_ONLY_REPLY']:
                             config[key] = (value_lower == 'on')
                         elif key == 'CONVERSATION_MODE':
                             if value_lower in ['ai_visible', 'human_simulated']:

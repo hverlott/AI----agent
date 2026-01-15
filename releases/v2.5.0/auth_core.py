@@ -1,8 +1,5 @@
 import hashlib
 import os
-import uuid
-from datetime import datetime, timedelta
-from typing import Optional
 from database import DatabaseManager
 
 class AuthManager:
@@ -55,30 +52,3 @@ class AuthManager:
         else:
             self.db.record_login_history(user['id'], username, ip_address, "failed_password")
             return None
-
-    def create_session_token(self, user_id: int) -> str:
-        token = str(uuid.uuid4())
-        expires_at = datetime.now() + timedelta(days=7)
-        self.db.create_session(token, user_id, expires_at)
-        return token
-
-    def validate_session_token(self, token: str) -> Optional[dict]:
-        session = self.db.get_session(token)
-        if not session:
-            return None
-        
-        expires_at = session['expires_at']
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # SQLite stores as string, ensure we compare correctly
-        # If it's a string, simple lexicographical comparison works for ISO-like formats
-        if str(expires_at) < now_str:
-            self.db.delete_session(token)
-            return None
-
-        user = self.db.get_user_by_id(session['user_id'])
-        return user
-
-    def revoke_session_token(self, token: str):
-        if token:
-            self.db.delete_session(token)

@@ -275,17 +275,16 @@ def register_handlers(app):
                      if c: audit_s_client = create_client_from_config(c)
 
                 audit_manager = AuditManager(
-            current_client, 
-            model_override, 
-            _load_cfg_wrapper, 
-            platform="telegram",
-            primary_client=audit_p_client,
-            secondary_client=audit_s_client,
-            primary_model=audit_p_model,
-            secondary_model=audit_s_model,
-            log_dir=app.cfg.get_platform_path("logs"),
-            fallback_path=app.cfg._get_readable_path("audit_fallback.txt")
-        )
+                    current_client, 
+                    model_override, 
+                    _load_cfg_wrapper, 
+                    platform="telegram",
+                    primary_client=audit_p_client,
+                    secondary_client=audit_s_client,
+                    primary_model=audit_p_model,
+                    secondary_model=audit_s_model,
+                    log_dir=app.cfg.get_platform_path("logs")
+                )
                 
                 gen_result = await audit_manager.generate_with_audit(
                     messages=messages,

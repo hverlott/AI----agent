@@ -18,22 +18,14 @@ except Exception:
     pass
 
 class KeywordManager:
-    _global_state = {}
-    _global_mtime = {}
-
     def __init__(self, config_path=None):
         if config_path:
             self.config_path = config_path
         else:
             self.config_path = os.path.join("platforms", "telegram", "keywords.json")
         
-        if self.config_path in KeywordManager._global_state:
-            st = KeywordManager._global_state[self.config_path]
-            self.keywords = st.get("keywords", {})
-            self.last_mtime = st.get("mtime", 0)
-        else:
-            self.keywords = {}
-            self.last_mtime = 0
+        self.keywords = {}
+        self.last_mtime = 0
         self._load()
 
     def _load(self):
@@ -49,19 +41,11 @@ class KeywordManager:
                 return
 
             mtime = os.path.getmtime(self.config_path)
-            g_mtime = KeywordManager._global_mtime.get(self.config_path, 0)
-            if mtime > max(self.last_mtime, g_mtime):
+            if mtime > self.last_mtime:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     self.keywords = json.load(f)
                 self.last_mtime = mtime
-                KeywordManager._global_state[self.config_path] = {"keywords": self.keywords, "mtime": mtime}
-                KeywordManager._global_mtime[self.config_path] = mtime
                 logger.info(f"Loaded keywords from {self.config_path}")
-            else:
-                if self.config_path in KeywordManager._global_state:
-                    st = KeywordManager._global_state[self.config_path]
-                    self.keywords = st.get("keywords", self.keywords)
-                    self.last_mtime = st.get("mtime", self.last_mtime)
         except Exception as e:
             logger.error(f"Failed to load keywords: {e}")
 
@@ -75,8 +59,6 @@ class KeywordManager:
             os.replace(tmp_path, self.config_path)
             # Update mtime to prevent reloading own save
             self.last_mtime = os.path.getmtime(self.config_path)
-            KeywordManager._global_state[self.config_path] = {"keywords": self.keywords, "mtime": self.last_mtime}
-            KeywordManager._global_mtime[self.config_path] = self.last_mtime
             logger.info(f"KEYWORDS_SAVE path={self.config_path} total_block={len(self.keywords.get('block', []))} total_sensitive={len(self.keywords.get('sensitive', []))}")
         except Exception as e:
             logger.error(f"Failed to save keywords: {e}")

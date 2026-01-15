@@ -26,28 +26,15 @@ class KBLoader:
             kb_refresh = str(config.get("KB_REFRESH", "off")).lower() == "on"
             need_reload = kb_refresh
 
+            # 如果未强制刷新，先检查数据库状态
             if not need_reload:
                 db_items = self.db.get_kb_items(self.tenant_id)
-                if db_items and len(db_items) == 1:
-                    row = db_items[0]
-                    content_len = len(row.get("content", "") or "")
-                    tags_raw = row.get("tags") or ""
-                    is_fallback = False
-                    if isinstance(tags_raw, list):
-                        is_fallback = any(str(t).lower() == "fallback" for t in tags_raw)
-                    elif isinstance(tags_raw, str):
-                        if tags_raw.startswith("["):
-                            try:
-                                t_list = json.loads(tags_raw)
-                                is_fallback = any(str(t).lower() == "fallback" for t in t_list)
-                            except Exception:
-                                is_fallback = "fallback" in tags_raw.lower()
-                        else:
-                            is_fallback = "fallback" in tags_raw.lower()
-                    if is_fallback and content_len > 2000:
-                        self.logger.log_system("⚠️ 检测到知识库结构异常（单条过长），触发自动修复重置...")
-                        need_reload = True
-                if db_items and not need_reload:
+                # 异常检测：只有1条记录且内容极长（>2000字符），通常是错误的整本导入
+                if db_items and len(db_items) == 1 and len(db_items[0].get("content", "")) > 2000:
+                    self.logger.log_system("⚠️ 检测到知识库结构异常（单条过长），触发自动修复重置...")
+                    need_reload = True
+                elif db_items:
+                    # 正常加载
                     for it in db_items:
                         if isinstance(it.get("tags"), str):
                             try:

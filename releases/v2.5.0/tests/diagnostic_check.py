@@ -7,18 +7,25 @@ from unittest.mock import MagicMock, AsyncMock
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from auditor import AuditResult
-from src.modules.audit.manager import AuditManager
+from audit_manager import AuditManager
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Diagnostic")
 
-os.environ.setdefault("OPENAI_API_KEY", "sk-dummy-key")
-os.environ.setdefault("AI_API_KEY", "sk-dummy-key")
-os.environ.setdefault("AI_BASE_URL", "http://dummy/v1")
+# Patch Auditor to avoid OpenAI init error
+sys.modules['auditor'] = MagicMock()
+from auditor import AuditResult
+# We need to ensure AuditManager can import Auditor, but we already patched sys.modules['auditor']
+# However, AuditManager imports Auditor from auditor. 
+# If AuditManager is already imported, we might need to reload or patch it differently.
+# But here AuditManager is imported *after* we might patch? 
+# No, AuditManager is imported at top.
+# Let's set env var instead, it's safer.
+os.environ["OPENAI_API_KEY"] = "sk-dummy-key"
+os.environ["OPENAI_BASE_URL"] = "http://dummy"
 
-async def _run_audit_flow():
+async def test_audit_flow():
     print("--- Starting Diagnostic Check ---")
     
     # 1. Check Config Files
@@ -54,22 +61,21 @@ async def _run_audit_flow():
     mock_client.chat.completions.create.return_value = bad_response
 
     # Initialize AuditManager
-    am = AuditManager(
-        mock_client,
-        "test-model",
-        config_loader=lambda: {
-            "AUDIT_ENABLED": "True",
-            "AUDIT_MODE": "remote",
-            "AUDIT_SERVERS": "http://127.0.0.1:9",
-        },
-        platform="telegram",
-    )
-    am.auditor_primary = AsyncMock()
-    am.auditor_primary.audit_content.return_value = AuditResult(
-        status="FAIL",
-        reason="Diagnostic Test Fail",
-        suggestion="",
-    )
+    # We assume 'auditor.py' is working (it was verified in previous steps)
+    # But for this test, we might want to use the real LocalAuditor if possible, 
+    # or mock it if we don't want to depend on external LLM for auditing.
+    # Since we want to test the *manager's* retry logic, we can mock the auditor to always FAIL.
+    
+    am = AuditManager(mock_client, "test-model")
+    am.auditor = AsyncMock()
+    # Mock Audit Result: Always FAIL
+    from auditor import AuditResult
+    mock_result = MagicMock()
+    mock_result.status = "FAIL"
+    mock_result.approved = False # Important: Must be False to trigger retry
+    mock_result.reason = "Diagnostic Test Fail"
+    mock_result.suggestion = "Suggestion"
+    am.auditor.audit_content.return_value = mock_result
     
     # Mock Config Loader
     am._get_config = MagicMock(side_effect=lambda k, d: "true" if k == "AUDIT_ENABLED" else d)
@@ -95,10 +101,6 @@ async def _run_audit_flow():
             print(f"[WARN] Expected 1 attempt, got {call_count}")
     else:
         print("[FAIL] Result format should be dict.")
-
-
-def test_audit_flow():
-    asyncio.run(_run_audit_flow())
 
 if __name__ == "__main__":
     asyncio.run(test_audit_flow())

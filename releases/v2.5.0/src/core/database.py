@@ -26,25 +26,6 @@ class DatabaseManager:
         conn = self._get_conn()
         cursor = conn.cursor()
         
-        # 系统配置表 (System Configurations)
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS system_configs (
-            key TEXT PRIMARY KEY,
-            value TEXT,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-
-        # 会话表 (Session Persistence)
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS sessions (
-            token TEXT PRIMARY KEY,
-            user_id INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            expires_at TIMESTAMP
-        )
-        ''')
-
         # IP白名单 (V2.4.0 Security)
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -733,18 +714,6 @@ class DatabaseManager:
             })
         return result
 
-    # --- System Configs ---
-
-    def get_system_config(self, key: str, default: str = None) -> str:
-        rows = self.execute_query("SELECT value FROM system_configs WHERE key = ?", (key,))
-        return rows[0]['value'] if rows else default
-
-    def set_system_config(self, key: str, value: str):
-        self.execute_update(
-            "INSERT INTO system_configs (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
-            (key, value, datetime.now())
-        )
-
     # --- Tenant & User Management (SaaS) ---
 
     def create_tenant(self, tenant_id: str, plan: str = "free"):
@@ -768,27 +737,6 @@ class DatabaseManager:
     def get_user_by_username(self, username: str) -> Optional[Dict]:
         rows = self.execute_query("SELECT * FROM users WHERE username = ?", (username,))
         return dict(rows[0]) if rows else None
-
-    def get_user_by_id(self, user_id: int) -> Optional[Dict]:
-        rows = self.execute_query("SELECT * FROM users WHERE id = ?", (user_id,))
-        return dict(rows[0]) if rows else None
-
-    def create_session(self, token: str, user_id: int, expires_at: datetime):
-        self.execute_update(
-            "INSERT INTO sessions (token, user_id, expires_at) VALUES (?, ?, ?)",
-            (token, user_id, expires_at)
-        )
-
-    def get_session(self, token: str) -> Optional[Dict]:
-        rows = self.execute_query("SELECT * FROM sessions WHERE token = ?", (token,))
-        return dict(rows[0]) if rows else None
-
-    def delete_session(self, token: str):
-        self.execute_update("DELETE FROM sessions WHERE token = ?", (token,))
-
-    def cleanup_sessions(self):
-        self.execute_update("DELETE FROM sessions WHERE expires_at < ?", (datetime.now(),))
-
 
     def list_users(self) -> List[Dict]:
         return self.execute_query("SELECT * FROM users")

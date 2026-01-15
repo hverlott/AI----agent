@@ -3,7 +3,7 @@
 ## 📖 简介 (Introduction)
 SaaS-AIs 是一个企业级 AI 客服管理系统，支持多租户、多平台（Telegram, WhatsApp, WeChat 等）接入。它基于 LLM 大模型技术，提供自动回复、知识库问答、意图识别和多轮对话管理功能。
 
-## 🚀 最新版本 v2.5.1 特性
+## 🚀 最新版本 v2.5.0 特性
 - **云原生多租户架构**: 完善的数据与配置隔离，支持无限开通租户，符合云部署标准。
 - **配置隔离**: 初始状态零配置，租户配置互不干扰。
 - **审计隔离**: 严格的租户级审计日志隔离，确保数据安全。
@@ -37,7 +37,7 @@ streamlit run admin_multi.py
 d:\SaaS-AIs/
 ├── admin_multi.py      # 主管理后台入口 (SaaS版)
 ├── main.py             # 机器人启动入口 (Wrapper)
-├── src/                # 核心源码 (v2.5.1+)
+├── src/                # 核心源码 (v2.5.0+)
 │   ├── config/         # 配置管理
 │   ├── core/           # 核心组件 (DB, Logger, AI)
 │   ├── modules/        # 业务模块 (Telegram, KB, Audit)

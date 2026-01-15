@@ -5,7 +5,7 @@ from pathlib import Path
 
 def create_release_package():
     # Configuration
-    VERSION = "v2.5.1"
+    VERSION = "v2.5.0"
     PACKAGE_NAME = f"SaaS-AI-System-{VERSION}"
     SOURCE_DIR = Path(__file__).parent.absolute()
     OUTPUT_ZIP = SOURCE_DIR / f"{PACKAGE_NAME}.zip"
@@ -21,7 +21,6 @@ def create_release_package():
         "config.txt",
         "prompt.txt",
         "README.md",
-        "RELEASE_NOTES.md",
         "ADMIN_README.md",
         "DEPLOYMENT_GUIDE.md"
     ]

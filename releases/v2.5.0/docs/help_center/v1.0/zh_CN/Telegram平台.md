@@ -19,18 +19,14 @@ graph TD
     
     Process --> CheckQA{匹配 QA 库}
     CheckQA -->|命中| ReplyQA[回复固定答案]
-    CheckQA -->|未命中| FastKB{知识库直答?}
-    
-    FastKB -->|是| KBOnly[知识库检索并直答]
-    FastKB -->|否| Orch{编排开启?}
+    CheckQA -->|未命中| Orch{编排开启?}
     
     Orch -->|是| Supervisor[监管者决策]
     Supervisor --> StageAgent[阶段执行器]
-    StageAgent --> RAG[知识库检索（可选）]
     StageAgent --> GenAI[调用 AI 生成]
     
-    Orch -->|否| RAG2[知识库检索]
-    RAG2 --> GenAI
+    Orch -->|否| DefaultAI[默认 AI 处理]
+    DefaultAI --> GenAI
     
     GenAI --> Audit{内容审核}
     Audit -->|通过| ReplyUser[回复用户]

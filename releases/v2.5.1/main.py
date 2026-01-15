@@ -9,7 +9,7 @@ from src.modules.telegram.bot import TelegramBotApp
 setup_env()
 
 # 2. Parse Arguments
-parser = argparse.ArgumentParser(description='Telegram AI Bot (Modular v2.5.1)')
+parser = argparse.ArgumentParser(description='Telegram AI Bot (Modular v2.5.0)')
 parser.add_argument('--tenant', type=str, default='default', help='Tenant ID')
 parser.add_argument('--session', type=str, default='userbot_session', help='Session file name (without .session)')
 args, unknown = parser.parse_known_args()

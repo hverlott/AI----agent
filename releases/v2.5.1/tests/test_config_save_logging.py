@@ -8,7 +8,6 @@ from datetime import datetime
 from database import db
 
 REPORT_FILE = os.path.join(BASE_DIR, "data", "logs", "save_logging_report.txt")
-os.makedirs(os.path.dirname(REPORT_FILE), exist_ok=True)
 
 def _count_logs(tenant):
     return len(db.get_audit_logs(tenant, limit=10000))

@@ -1,6 +1,6 @@
 # AI 配置中心 (AGNT AI Configuration)
 
-Version: 2.5.1
+Version: 2.5.0
 Last Updated: 2026-01-09
 
 ## 1. 功能概述
@@ -82,5 +82,5 @@ graph TD
 
 | 版本号 | 更新日期 | 修改人 | 修改摘要 |
 | :--- | :--- | :--- | :--- |
-| v2.5.1 | 2026-01-09 | System Admin | 重构文档，匹配 Model Registry + Pipeline 双层架构，更新架构图 |
+| v2.5.0 | 2026-01-09 | System Admin | 重构文档，匹配 Model Registry + Pipeline 双层架构，更新架构图 |
 | v1.0.6 | 2026-01-09 | Tech Writer | 补充租户隔离保存路径与学习/技能绑定说明 |

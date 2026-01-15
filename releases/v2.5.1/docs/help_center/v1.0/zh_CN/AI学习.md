@@ -1,6 +1,6 @@
 #+#+#+#+## AI 学习中心
 
-Version: 2.5.1
+Version: 2.5.0
 Last Updated: 2026-01-12
 
 ## 1. 功能用途

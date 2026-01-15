@@ -1,6 +1,6 @@
 # Telegram 平台管理 (Telegram Platform)
 
-Version: 2.5.1
+Version: 2.5.0
 Last Updated: 2026-01-09
 
 Telegram 平台管理面板提供配置、日志查看、群发消息及统计功能。

@@ -30,7 +30,7 @@ class TelegramBotApp:
         # Or is it initialized here? 
         # Checking imports... it is NOT imported at top level.
         
-        # NOTE: In v2.5.1, AuditManager might be initialized inside handlers or lazily. 
+        # NOTE: In v2.5.0, AuditManager might be initialized inside handlers or lazily. 
         # But if we want to pass log_dir, we should probably initialize it here or ensure handlers get it.
         # Let's check where AuditManager is used. 
         # Based on previous reads, it seems AuditManager is used in `handlers.py` or similar.
@@ -73,78 +73,6 @@ class TelegramBotApp:
         from src.modules.telegram.handlers import register_handlers
         register_handlers(self)
         
-        # Load keywords once
-        self.keywords = self.cfg.load_keywords()
-        self.logger.log_system(f"✅ 已加载关键词配置: {len(self.keywords)} 个")
-        
         self.logger.log_system("🚀 Telegram Bot 启动中...")
-        try:
-            await self.client.connect()
-            if not await self.client.is_user_authorized():
-                conf = self.cfg.load_config()
-                token = conf.get("BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN")
-                if token:
-                    await self.client.start(bot_token=token)
-                else:
-                    self.logger.log_system("❌ 未授权会话，且未配置 TELEGRAM_BOT_TOKEN。请在后台完成手机号登录或设置环境变量 TELEGRAM_BOT_TOKEN。")
-                    return
-        except Exception as e:
-            self.logger.log_system(f"❌ 连接 Telegram 失败: {e}")
-            return
-        
-        # Sync groups on startup
-        try:
-            await self._sync_groups()
-        except Exception as e:
-            self.logger.log_system(f"⚠️ 启动时同步群组失败: {e}")
-            
+        await self.client.start()
         await self.client.run_until_disconnected()
-
-    async def _sync_groups(self):
-        """Sync all groups to cache on startup"""
-        try:
-            dialogs = await self.client.get_dialogs()
-            groups = {}
-            for d in dialogs:
-                if d.is_group or d.is_channel:
-                    groups[str(d.id)] = {
-                        "id": d.id,
-                        "title": d.title,
-                        "type": "channel" if d.is_channel else "group",
-                        "username": getattr(d.entity, 'username', None),
-                        "last_seen": asyncio.get_event_loop().time() # Use timestamp or isoformat
-                    }
-            
-            # Save to cache/group_whitelist/{tenant_id}_group_cache.json
-            # We need to construct this path manually or use a helper
-            # Since admin_multi.py uses specific logic, we replicate it here or pass it via config
-            # But ConfigManager might not know about this specific path requirement yet.
-            
-            # Construct path relative to project root
-            # self.cfg.root_dir should exist? ConfigManager usually has it.
-            # Let's assume we can resolve "cache/group_whitelist"
-            
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-            cache_dir = os.path.join(project_root, "cache", "group_whitelist")
-            os.makedirs(cache_dir, exist_ok=True)
-            
-            cache_file = os.path.join(cache_dir, f"{self.tenant_id}_group_cache.json")
-            
-            import json
-            from datetime import datetime
-            
-            # Load existing to preserve 'last_seen' if needed, but here we refresh
-            # Actually better to merge? For now, overwrite is safer for "Sync"
-            
-            # Convert timestamp to string for JSON
-            for k, v in groups.items():
-                v["last_seen"] = datetime.now().isoformat()
-                
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                json.dump(groups, f, ensure_ascii=False, indent=2)
-                
-            self.logger.log_system(f"✅ 群组缓存同步完成: {len(groups)} 个群组")
-            
-        except Exception as e:
-            self.logger.log_system(f"❌ 群组同步错误: {e}")
-            raise e
